@@ -3,13 +3,121 @@ import {
   Package, 
   Search, 
   Plus, 
-  AlertTriangle, 
-  CheckCircle2, 
-  HelpCircle, 
-  Layers,
-  ArrowRight,
-  TrendingDown
+  TrendingDown,
+  ChevronDown
 } from 'lucide-react';
+
+function FilterDropdown({ label, options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find(opt => opt.id === value);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, [isOpen]);
+
+  return (
+    <div className="relative inline-block text-left w-full" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-[#1a1a1a] border border-[#2a2a2a] hover:border-gold-400/50 hover:bg-white/5 px-4 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center justify-between gap-3 shadow-inner transition-all duration-200 cursor-pointer h-10"
+      >
+        <span className="flex items-center gap-2 truncate">
+          {selectedOption?.colorClass && (
+            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${selectedOption.colorClass}`} />
+          )}
+          <span>{selectedOption ? selectedOption.label : label}</span>
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 left-0 mt-1.5 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+          {options.map((opt) => {
+            const isSelected = opt.id === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2 text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-2 ${
+                  isSelected
+                    ? 'text-black bg-gold-400 font-bold'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {opt.colorClass && (
+                  <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isSelected ? 'bg-black' : opt.colorClass}`} />
+                )}
+                <span>{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FormDropdown({ label, options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find(opt => opt.id === value);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, [isOpen]);
+
+  return (
+    <div className="relative w-full text-left" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 px-4 py-3 rounded-xl text-sm text-white flex items-center justify-between gap-3 shadow-inner transition-all duration-200 cursor-pointer h-12"
+      >
+        <span>{selectedOption ? selectedOption.label : label}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-1.5 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+          {options.map((opt) => {
+            const isSelected = opt.id === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${
+                  isSelected
+                    ? 'text-black bg-gold-400 font-bold'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Estoque({ inventory, setInventory }) {
   const [filterCategory, setFilterCategory] = useState('all'); // 'all', 'Produtos', 'Descartáveis', 'Equipamentos'
@@ -171,53 +279,80 @@ export default function Estoque({ inventory, setInventory }) {
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="bg-card-bg border border-border-dark p-6 rounded-2xl space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+      <div className="bg-card-bg border border-border-dark p-6 rounded-2xl">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end w-full">
           
           {/* Search bar */}
-          <div className="relative w-full md:max-w-xs">
-            <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Buscar produto..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600"
-            />
+          <div className="flex-1 flex flex-col gap-1.5 w-full">
+            <span className="text-[10px] text-[#9ca3af] font-black uppercase tracking-wider select-none">
+              Buscar Produto
+            </span>
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Buscar produto..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 transition-all duration-200 outline-none"
+              />
+            </div>
           </div>
 
           {/* Filters Selectors */}
-          <div className="flex flex-wrap gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full md:w-auto">
             
             {/* Category Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400 font-semibold hidden sm:inline">Categoria:</span>
-              <select
+            <div className="flex flex-col gap-1.5 w-full sm:w-48">
+              <span className="text-[10px] text-[#9ca3af] font-black uppercase tracking-wider select-none">
+                Categoria
+              </span>
+              <FilterDropdown
+                label="Categoria"
+                options={[
+                  { id: 'all', label: 'Todas Categorias' },
+                  { id: 'Produtos', label: 'Produtos' },
+                  { id: 'Descartáveis', label: 'Descartáveis' },
+                  { id: 'Equipamentos', label: 'Equipamentos' }
+                ]}
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="bg-black/40 border border-border-dark rounded-xl px-3 py-2 text-xs text-white input-premium"
-              >
-                <option value="all">Todas Categorias</option>
-                <option value="Produtos">Produtos</option>
-                <option value="Descartáveis">Descartáveis</option>
-                <option value="Equipamentos">Equipamentos</option>
-              </select>
+                onChange={setFilterCategory}
+              />
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400 font-semibold hidden sm:inline">Status:</span>
-              <select
+            <div className="flex flex-col gap-1.5 w-full sm:w-48">
+              <span className="text-[10px] text-[#9ca3af] font-black uppercase tracking-wider select-none">
+                Status
+              </span>
+              <FilterDropdown
+                label="Status"
+                options={[
+                  { id: 'all', label: 'Todos Status' },
+                  { id: 'green', label: 'Em Dia (Verde)', colorClass: 'bg-emerald-500' },
+                  { id: 'yellow', label: 'No Limite (Amarelo)', colorClass: 'bg-yellow-500' },
+                  { id: 'red', label: 'Abaixo do Mínimo (Vermelho)', colorClass: 'bg-red-500' }
+                ]}
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-black/40 border border-border-dark rounded-xl px-3 py-2 text-xs text-white input-premium"
-              >
-                <option value="all">Todos Status</option>
-                <option value="green">Em Dia (Verde)</option>
-                <option value="yellow">No Limite (Amarelo)</option>
-                <option value="red">Abaixo do Mínimo (Vermelho)</option>
-              </select>
+                onChange={setFilterStatus}
+              />
             </div>
+
+            {/* Clear Filters Button */}
+            {(filterCategory !== 'all' || filterStatus !== 'all') && (
+              <div className="flex items-center justify-start sm:justify-center h-10 sm:h-10 shrink-0 select-none">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterCategory('all');
+                    setFilterStatus('all');
+                  }}
+                  className="text-xs font-bold text-[#D4A843] hover:text-gold-300 transition-colors uppercase tracking-wider cursor-pointer border-0 bg-transparent p-0 outline-none"
+                >
+                  Limpar filtros
+                </button>
+              </div>
+            )}
 
           </div>
 
@@ -387,18 +522,18 @@ export default function Estoque({ inventory, setInventory }) {
                 </div>
 
                 {/* Category Select */}
-                <div className="flex flex-col-reverse gap-1.5">
-                  <select
-                    id="prodCategory"
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Categoria</label>
+                  <FormDropdown
+                    label="Categoria"
+                    options={[
+                      { id: 'Produtos', label: 'Produtos' },
+                      { id: 'Descartáveis', label: 'Descartáveis' },
+                      { id: 'Equipamentos', label: 'Equipamentos' }
+                    ]}
                     value={newProduct.category}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer cursor-pointer"
-                  >
-                    <option value="Produtos">Produtos</option>
-                    <option value="Descartáveis">Descartáveis</option>
-                    <option value="Equipamentos">Equipamentos</option>
-                  </select>
-                  <label htmlFor="prodCategory" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Categoria</label>
+                    onChange={(val) => setNewProduct(prev => ({ ...prev, category: val }))}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

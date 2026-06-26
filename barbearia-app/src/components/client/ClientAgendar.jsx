@@ -7,7 +7,9 @@ import {
   ChevronRight, 
   Sparkles, 
   ArrowLeft,
-  CheckCircle2
+  CheckCircle2,
+  Crown,
+  Check
 } from 'lucide-react';
 
 const SERVICES = [
@@ -254,14 +256,60 @@ export default function ClientAgendar({ appointments, setAppointments, planState
       </div>
 
       {/* Visual Stepper */}
-      <div className="flex items-center justify-between px-4 max-w-md mx-auto text-xs md:text-sm font-bold uppercase tracking-wider select-none text-gray-500">
-        <span className={step >= 1 ? 'text-gold-400 font-black' : ''}>1. Serviço</span>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-700" />
-        <span className={step >= 2 ? 'text-gold-400 font-black' : ''}>2. Barbeiro</span>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-700" />
-        <span className={step >= 3 ? 'text-gold-400 font-black' : ''}>3. Data/Hora</span>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-700" />
-        <span className={step >= 4 ? 'text-gold-400 font-black' : ''}>4. Confirmar</span>
+      <div className="w-full max-w-xl mx-auto px-4 select-none relative mb-8">
+        {/* Progress Connector Lines in Background */}
+        <div className="absolute top-5 left-5 right-5 h-0.5 bg-[#2a2a2a] -z-10">
+          <div 
+            className="h-full bg-[#D4A843] transition-all duration-300 ease-out"
+            style={{ width: `${((step - 1) / 3) * 100}%` }}
+          />
+        </div>
+
+        <div className="flex justify-between items-start w-full">
+          {[
+            { id: 1, label: 'Serviço' },
+            { id: 2, label: 'Barbeiro' },
+            { id: 3, label: 'Data/Hora' },
+            { id: 4, label: 'Confirmar' }
+          ].map((s) => {
+            const isCompleted = s.id < step;
+            const isActive = s.id === step;
+
+            return (
+              <div key={s.id} className="flex flex-col items-center flex-1 relative">
+                {/* Circle */}
+                <div 
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border text-sm font-extrabold transition-all duration-300 ${
+                    isActive 
+                      ? 'bg-[#D4A843] border-[#D4A843] text-black shadow-lg shadow-[#D4A843]/20 scale-105' 
+                      : isCompleted 
+                        ? 'bg-[#D4A843] border-[#D4A843] text-black' 
+                        : 'bg-transparent border-[#2a2a2a] text-[#9ca3af]'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <Check className="w-5 h-5 stroke-[3]" />
+                  ) : (
+                    <span>{s.id}</span>
+                  )}
+                </div>
+
+                {/* Label */}
+                <span 
+                  className={`mt-2 text-[10px] md:text-xs uppercase tracking-wider text-center transition-colors duration-300 ${
+                    isActive 
+                      ? 'text-[#D4A843] font-black' 
+                      : isCompleted 
+                        ? 'text-white/80 font-bold' 
+                        : 'text-[#9ca3af] font-semibold'
+                  }`}
+                >
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* STEP 1: CHOOSE SERVICE */}
@@ -281,24 +329,34 @@ export default function ClientAgendar({ appointments, setAppointments, planState
                   <div>
                     <div className="flex justify-between items-start gap-3">
                       <h5 className="font-extrabold text-white text-base md:text-lg">{service.name}</h5>
-                      <span className="text-sm md:text-base font-black text-gold-400 shrink-0">
-                        {covered ? 'R$0,00' : currencyFormatter.format(service.price)}
-                      </span>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        {covered ? (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs md:text-sm line-through text-[#9ca3af]">
+                                {currencyFormatter.format(service.price)}
+                              </span>
+                              <span className="text-sm md:text-base font-black text-white">
+                                R$0,00
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 bg-[#D4A843]/10 border border-[#D4A843]/20 px-2 py-0.5 rounded text-[10px] font-extrabold text-[#D4A843] uppercase tracking-wider">
+                              <Crown className="w-3.5 h-3.5 text-[#D4A843]" />
+                              <span>Incluso no Plano</span>
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-sm md:text-base font-black text-gold-400">
+                            {currencyFormatter.format(service.price)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs md:text-sm text-gray-400 leading-relaxed mt-2">{service.description}</p>
                   </div>
                   
-                  <div className="flex justify-between items-center pt-3 border-t border-border-dark/30">
+                  <div className="pt-3 border-t border-border-dark/30">
                     <span className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-wider">{service.duration} minutos</span>
-                    {covered ? (
-                      <span className="text-xs md:text-sm font-extrabold px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap shrink-0">
-                        No Plano
-                      </span>
-                    ) : (
-                      <span className="text-xs md:text-sm font-bold text-gold-400 hover:text-gold-300 uppercase tracking-wider flex items-center gap-0.5 whitespace-nowrap shrink-0">
-                        Selecionar <ChevronRight className="w-3.5 h-3.5" />
-                      </span>
-                    )}
                   </div>
                 </div>
               );

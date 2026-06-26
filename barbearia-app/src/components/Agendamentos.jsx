@@ -1,9 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { services } from '../data/mockData';
 import BaixaPagamento from './BaixaPagamento';
 import AgendaCalendario from './AgendaCalendario';
 import AgendaTabela from './AgendaTabela';
+
+function FormDropdown({ label, options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find(opt => opt.id === value);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, [isOpen]);
+
+  return (
+    <div className="relative w-full text-left" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-black/40 border border-[#2a2a2a] hover:border-gold-400/50 focus:border-gold-400 px-4 py-3 rounded-xl text-sm text-white flex items-center justify-between gap-3 shadow-inner transition-all duration-200 cursor-pointer h-12"
+      >
+        <span>{selectedOption ? selectedOption.label : label}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-1.5 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+          {options.map((opt) => {
+            const isSelected = opt.id === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${
+                  isSelected
+                    ? 'text-black bg-gold-400 font-bold'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Reusable Custom Dropdown Component matching the design system
 function CustomDropdown({ label, options, value, onChange }) {
@@ -18,7 +70,7 @@ function CustomDropdown({ label, options, value, onChange }) {
   }, [isOpen]);
 
   return (
-    <div className="relative inline-block text-left w-full sm:w-48" onClick={(e) => e.stopPropagation()}>
+    <div className="relative inline-block text-left w-full sm:w-56" onClick={(e) => e.stopPropagation()}>
       <div>
         <button
           type="button"
@@ -204,6 +256,16 @@ export default function Agendamentos({ appointments, setAppointments, profession
             netAmount: 0
           };
         }
+        if (method === 'Cancelado') {
+          return {
+            ...app,
+            status: 'Cancelado',
+            previousStatus: app.status,
+            paymentMethod: null,
+            fee: 0,
+            netAmount: 0
+          };
+        }
         return {
           ...app,
           status: 'Concluído',
@@ -211,6 +273,17 @@ export default function Agendamentos({ appointments, setAppointments, profession
           fee,
           netAmount: net
         };
+      }
+      return app;
+    }));
+  };
+
+  const handleReactivateAppointment = (id) => {
+    setAppointments(prev => prev.map(app => {
+      if (app.id === id) {
+        const restoredApp = { ...app, status: app.previousStatus || 'Agendado' };
+        delete restoredApp.previousStatus;
+        return restoredApp;
       }
       return app;
     }));
@@ -379,11 +452,11 @@ export default function Agendamentos({ appointments, setAppointments, profession
           days={currentWeekDays}
           statusStyles={statusStyles}
           onBookClick={handleBookSlotClick}
-          onToggleStatus={handleToggleStatus}
           onPaymentClick={(app) => {
             setSelectedAppForPayment(app);
             setIsPaymentOpen(true);
           }}
+          onReactivate={handleReactivateAppointment}
         />
       )}
 
@@ -443,33 +516,31 @@ export default function Agendamentos({ appointments, setAppointments, profession
                 </div>
 
                 {/* Professional Select */}
-                <div className="flex flex-col-reverse gap-1.5">
-                  <select
-                    id="professionalSelect"
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Barbeiro</label>
+                  <FormDropdown
+                    label="Barbeiro"
+                    options={professionals.map(p => ({
+                      id: p.id,
+                      label: `${p.name} (${p.specialty})`
+                    }))}
                     value={bookDetails.professionalId}
-                    onChange={(e) => setBookDetails(prev => ({ ...prev, professionalId: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer cursor-pointer"
-                  >
-                    {professionals.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.specialty})</option>
-                    ))}
-                  </select>
-                  <label htmlFor="professionalSelect" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Barbeiro</label>
+                    onChange={(val) => setBookDetails(prev => ({ ...prev, professionalId: val }))}
+                  />
                 </div>
 
                 {/* Service Select */}
-                <div className="flex flex-col-reverse gap-1.5">
-                  <select
-                    id="serviceSelect"
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Serviço</label>
+                  <FormDropdown
+                    label="Serviço"
+                    options={services.map(s => ({
+                      id: s.id,
+                      label: `${s.name} - R$ ${s.price.toFixed(2).replace('.', ',')} (${s.duration}min)`
+                    }))}
                     value={bookDetails.serviceId}
-                    onChange={(e) => setBookDetails(prev => ({ ...prev, serviceId: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer cursor-pointer"
-                  >
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} - R$${s.price.toFixed(2).replace('.', ',')} ({s.duration}min)</option>
-                    ))}
-                  </select>
-                  <label htmlFor="serviceSelect" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Serviço</label>
+                    onChange={(val) => setBookDetails(prev => ({ ...prev, serviceId: val }))}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

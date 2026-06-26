@@ -30,6 +30,49 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
+function AnimatedNumber({ value, duration = 600, format }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValueRef = useRef(value);
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    const fromValue = prevValueRef.current;
+    const toValue = value;
+
+    if (fromValue === toValue) return;
+
+    const startTime = performance.now();
+
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // cubic ease-out
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const currentValue = fromValue + (toValue - fromValue) * easeProgress;
+
+      setDisplayValue(currentValue);
+      prevValueRef.current = currentValue;
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        prevValueRef.current = toValue;
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [value, duration]);
+
+  return <>{format(displayValue)}</>;
+}
+
 export default function Dashboard({ appointments, inventory, dailyRevData, professionals }) {
   const chartContainerRef = useRef(null);
   const [viewMode, setViewMode] = useState('diario');
@@ -83,6 +126,8 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
       occupancy
     };
   });
+
+  const overOccupiedProfs = profOccupancy.filter(prof => prof.occupancy > 75);
 
   const averageOccupancy = profOccupancy.length > 0
     ? profOccupancy.reduce((sum, p) => sum + p.occupancy, 0) / profOccupancy.length
@@ -167,11 +212,18 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
                 {viewMode === 'diario' ? 'Faturamento de Hoje' : 'Faturamento do Mês'}
               </p>
               <h3 className="text-3xl font-bold text-white mt-2 tracking-tight">
-                {currencyFormatter.format(viewMode === 'diario' ? todayTotalRevenue : monthlyTotalRevenue)}
+                <AnimatedNumber
+                  value={viewMode === 'diario' ? todayTotalRevenue : monthlyTotalRevenue}
+                  format={(val) => currencyFormatter.format(val)}
+                />
               </h3>
               <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                 <span className="text-emerald-500 font-semibold flex items-center">
-                  <ArrowUpRight className="w-3.5 h-3.5" /> {viewMode === 'diario' ? '+14.2%' : `+${monthlyRevenueStats.percentageChange}%`}
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <AnimatedNumber
+                    value={viewMode === 'diario' ? 14.2 : monthlyRevenueStats.percentageChange}
+                    format={(val) => `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`}
+                  />
                 </span>
                 {viewMode === 'diario' ? 'em relação a ontem' : monthlyRevenueStats.comparisonText}
               </p>
@@ -191,18 +243,26 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
                 {viewMode === 'diario' ? 'Agendamentos de Hoje' : 'Agendamentos do Mês'}
               </p>
               <h3 className="text-3xl font-bold text-white mt-2 tracking-tight">
-                {viewMode === 'diario' ? `${todayCount} Clientes` : `${monthlyTotalCount} Clientes`}
+                <AnimatedNumber
+                  value={viewMode === 'diario' ? todayCount : monthlyTotalCount}
+                  format={(val) => `${Math.round(val)} Clientes`}
+                />
               </h3>
               <p className="text-xs text-gray-500 mt-2">
-                {viewMode === 'diario' ? (
-                  <>
-                    <span className="text-gold-400 font-semibold">{todayCompletedCount}</span> concluídos • <span className="text-gray-400 font-semibold">{todayCount - todayCompletedCount}</span> pendentes
-                  </>
-                ) : (
-                  <>
-                    <span className="text-gold-400 font-semibold">{monthlyCompletedCount}</span> concluídos • <span className="text-gray-400 font-semibold">{monthlyTotalCount - monthlyCompletedCount}</span> pendentes
-                  </>
-                )}
+                <span className="text-gold-400 font-semibold">
+                  <AnimatedNumber
+                    value={viewMode === 'diario' ? todayCompletedCount : monthlyCompletedCount}
+                    format={(val) => Math.round(val)}
+                  />
+                </span>
+                {' concluídos • '}
+                <span className="text-gray-400 font-semibold">
+                  <AnimatedNumber
+                    value={viewMode === 'diario' ? (todayCount - todayCompletedCount) : (monthlyTotalCount - monthlyCompletedCount)}
+                    format={(val) => Math.round(val)}
+                  />
+                </span>
+                {' pendentes'}
               </p>
             </div>
             <div className="bg-gold-400/10 border border-gold-400/20 p-3 rounded-xl text-gold-400">
@@ -372,15 +432,25 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
           </div>
 
           {/* Hiring Callout Alert */}
-          <div className="mt-6 p-4 rounded-xl bg-red-500/5 border border-red-500/10 flex gap-3 items-start">
-            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5 animate-pulse" />
-            <div>
-              <p className="text-xs font-bold text-white">Alerta de Recursos Humanos</p>
-              <p className="text-xs text-gray-400 mt-1 leading-normal">
-                O profissional <strong>Gustavo</strong> superou o limite recomendado de 75% de ocupação. Recomendamos abrir vagas de contratação para novos barbeiros.
-              </p>
+          {overOccupiedProfs.length > 0 && (
+            <div className="mt-6 p-4 rounded-xl bg-red-500/5 border border-red-500/10 flex gap-3 items-start">
+              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5 animate-pulse" />
+              <div>
+                <p className="text-xs font-bold text-white">Alerta de Recursos Humanos</p>
+                <p className="text-xs text-gray-400 mt-1 leading-normal">
+                  {overOccupiedProfs.length === 1 ? (
+                    <>
+                      O profissional <strong>{overOccupiedProfs[0].name}</strong> superou o limite recomendado de 75% de ocupação. Recomendamos abrir vagas de contratação para novos barbeiros.
+                    </>
+                  ) : (
+                    <>
+                      Os profissionais <strong>{overOccupiedProfs.map(p => p.name).join(' e ')}</strong> superaram o limite recomendado de 75% de ocupação. Recomendamos abrir vagas de contratação para novos barbeiros.
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
 

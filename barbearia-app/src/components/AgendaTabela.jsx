@@ -119,15 +119,15 @@ export default function AgendaTabela({
                       >
                         <div className="flex justify-between items-start gap-3 leading-none">
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1 text-xs font-bold">
-                              <Clock className="w-3.5 h-3.5 shrink-0" />
-                              <span>{coveringApp.time}</span>
-                              <span className="text-xs opacity-75 ml-1">({coveringApp.duration}m)</span>
-                            </div>
-                            <p className="text-xs font-extrabold text-white mt-1 truncate">
+                            <p className="text-xs font-extrabold text-white truncate">
                               {coveringApp.clientName}
                             </p>
                             <p className="text-xs opacity-80 truncate mt-0.5">{coveringApp.service}</p>
+                            <div className="flex items-center gap-1 text-xs font-semibold opacity-75 mt-1.5">
+                              <Clock className="w-3.5 h-3.5 shrink-0" />
+                              <span>{coveringApp.time}</span>
+                              <span className="text-[10px] ml-1">({coveringApp.duration}m)</span>
+                            </div>
                           </div>
                           
                           <button 

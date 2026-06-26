@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CreditCard, DollarSign, QrCode, UserX } from 'lucide-react';
+import { X, CreditCard, DollarSign, QrCode, UserX, XCircle } from 'lucide-react';
 import { calculateNetAndFee } from '../data/mockData';
 
 export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm }) {
@@ -7,11 +7,13 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
   const [feeDetails, setFeeDetails] = useState({ fee: 0, netAmount: 0 });
   const [render, setRender] = useState(isOpen);
   const [isExiting, setIsExiting] = useState(false);
+  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setRender(true);
       setIsExiting(false);
+      setShowConfirmCancel(false);
     } else if (render) {
       setIsExiting(true);
       const timer = setTimeout(() => {
@@ -23,15 +25,24 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
 
   useEffect(() => {
     if (appointment) {
-      const details = calculateNetAndFee(appointment.price, paymentMethod);
-      setFeeDetails(details);
+      if (paymentMethod === 'Não Compareceu' || paymentMethod === 'Cancelado') {
+        setFeeDetails({ fee: 0, netAmount: 0 });
+      } else {
+        const details = calculateNetAndFee(appointment.price, paymentMethod);
+        setFeeDetails(details);
+      }
     }
   }, [appointment, paymentMethod]);
 
   if (!render || !appointment) return null;
 
   const handleConfirm = () => {
+    if (paymentMethod === 'Cancelado' && !showConfirmCancel) {
+      setShowConfirmCancel(true);
+      return;
+    }
     onConfirm(appointment.id, paymentMethod, feeDetails.fee, feeDetails.netAmount);
+    setShowConfirmCancel(false);
     onClose();
   };
 
@@ -57,6 +68,38 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
         isExiting ? 'animate-modal-out' : 'animate-modal-in'
       }`}>
         
+        {/* Safety cancellation confirmation dialog overlay */}
+        {showConfirmCancel && (
+          <div className="absolute inset-0 bg-black/95 flex flex-col justify-center p-6 text-center space-y-6 z-50 animate-modal-in">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-white">Confirmar Cancelamento</h4>
+              <p className="text-xs text-gray-400 leading-normal">
+                Tem certeza que deseja cancelar este agendamento? Essa ação não pode ser desfeita.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  onConfirm(appointment.id, 'Cancelado', 0, 0);
+                  setShowConfirmCancel(false);
+                  onClose();
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors cursor-pointer h-11"
+              >
+                Sim, Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowConfirmCancel(false)}
+                className="w-full py-3 px-4 rounded-xl border border-border-dark text-xs font-bold text-gray-400 hover:bg-white/5 transition-colors cursor-pointer h-11"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
           <div>
@@ -120,9 +163,16 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
                   );
                 })}
               </div>
+            </div>
 
-              {/* Missed Appointment (No-Show) Option */}
-              <div className="pt-1">
+            <hr className="border-t border-[#2a2a2a] my-4" />
+
+            {/* Other Actions Section */}
+            <div className="space-y-4">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Outras Ações</label>
+              
+              <div className="flex flex-col gap-3">
+                {/* Missed Appointment (No-Show) Option */}
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('Não Compareceu')}
@@ -140,6 +190,25 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
                     <p className="text-xs text-gray-500 mt-0.5">Registrar ausência do cliente e zerar cobrança</p>
                   </div>
                 </button>
+
+                {/* Cancel Appointment Option */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('Cancelado')}
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    paymentMethod === 'Cancelado'
+                      ? 'bg-red-500/10 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.05)] font-bold'
+                      : 'bg-black/30 border-border-dark text-gray-400 hover:bg-white/5 hover:border-red-500/30'
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg ${paymentMethod === 'Cancelado' ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-gray-400'}`}>
+                    <XCircle className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white">Cancelar Agendamento</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Cancela o agendamento sem cobrança</p>
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -150,6 +219,13 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
                   <p className="text-sm font-bold text-rose-400">Ausência Registrada</p>
                   <p className="text-xs text-gray-500 leading-normal">
                     Este atendimento será marcado como <strong className="text-gray-300">Não Compareceu</strong>. Nenhuma cobrança ou comissão será gerada.
+                  </p>
+                </div>
+              ) : paymentMethod === 'Cancelado' ? (
+                <div className="text-center py-2 space-y-1">
+                  <p className="text-sm font-bold text-red-400">Cancelamento de Agendamento</p>
+                  <p className="text-xs text-gray-500 leading-normal">
+                    Este atendimento será marcado como <strong className="text-gray-300">Cancelado</strong>. Nenhuma cobrança ou comissão será gerada.
                   </p>
                 </div>
               ) : (
@@ -177,6 +253,13 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
                 </>
               )}
             </div>
+
+            {/* Irreversible warning */}
+            {paymentMethod === 'Cancelado' && (
+              <p className="text-xs font-semibold text-red-400 text-center tracking-wide animate-pulse">
+                Essa ação não pode ser desfeita.
+              </p>
+            )}
           </div>
         </div>
 
@@ -195,10 +278,16 @@ export default function BaixaPagamento({ isOpen, onClose, appointment, onConfirm
             className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold h-11 transition-all duration-200 cursor-pointer ${
               paymentMethod === 'Não Compareceu'
                 ? 'bg-rose-500 text-white hover:bg-rose-600 active:scale-97'
-                : 'bg-gold-400 text-black hover:bg-gold-500 active:scale-97'
+                : paymentMethod === 'Cancelado'
+                  ? 'bg-red-500 text-white hover:bg-red-600 active:scale-97'
+                  : 'bg-gold-400 text-black hover:bg-gold-500 active:scale-97'
             }`}
           >
-            {paymentMethod === 'Não Compareceu' ? 'Confirmar Ausência' : 'Confirmar Recebimento'}
+            {paymentMethod === 'Não Compareceu' 
+              ? 'Confirmar Falta' 
+              : paymentMethod === 'Cancelado' 
+                ? 'Confirmar Cancelamento' 
+                : 'Confirmar Recebimento'}
           </button>
         </div>
 

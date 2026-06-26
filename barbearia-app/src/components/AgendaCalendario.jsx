@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function AgendaCalendario({
   appointments,
@@ -7,11 +7,12 @@ export default function AgendaCalendario({
   professionals,
   days,
   onBookClick,
-  onToggleStatus,
-  onPaymentClick
+  onPaymentClick,
+  onReactivate
 }) {
   const [nowMinutes, setNowMinutes] = useState(null);
   const [todayDateStr, setTodayDateStr] = useState('');
+  const [reactivateApp, setReactivateApp] = useState(null);
 
   useEffect(() => {
     const updateTime = () => {
@@ -134,12 +135,25 @@ export default function AgendaCalendario({
   // Styles map based on professional responsible
   const getProfStyle = (profId) => {
     if (profId === 'nicolas') {
-      return 'bg-sky-500/10 border-sky-500/30 text-sky-400 hover:bg-sky-500/15 card-premium cursor-pointer';
+      return 'bg-sky-500/10 border-sky-500/30 text-sky-400 hover:bg-sky-500/15 card-premium cursor-pointer hover:scale-[1.01] active:scale-[0.99]';
     }
     if (profId === 'gustavo') {
-      return 'bg-gold-400/10 border-gold-400/30 text-gold-400 hover:bg-gold-400/15 card-premium cursor-pointer';
+      return 'bg-gold-400/10 border-gold-400/30 text-gold-400 hover:bg-gold-400/15 card-premium cursor-pointer hover:scale-[1.01] active:scale-[0.99]';
     }
-    return 'bg-purple-500/10 border-purple-500/30 text-purple-400 hover:bg-purple-500/15 card-premium cursor-pointer';
+    return 'bg-purple-500/10 border-purple-500/30 text-purple-400 hover:bg-purple-500/15 card-premium cursor-pointer hover:scale-[1.01] active:scale-[0.99]';
+  };
+
+  const getAppointmentStyle = (app) => {
+    if (app.status === 'Concluído') {
+      return 'bg-[#16a34a]/10 border-[#16a34a]/30 text-emerald-400 card-premium cursor-default opacity-90';
+    }
+    if (app.status === 'Não Compareceu') {
+      return 'bg-[#ec4899]/10 border-[#ec4899]/30 text-[#ec4899] card-premium cursor-default opacity-90';
+    }
+    if (app.status === 'Cancelado') {
+      return 'bg-[#dc2626]/10 border-[#dc2626]/30 text-[#dc2626] card-premium cursor-pointer hover:bg-[#dc2626]/15 hover:scale-[1.01] active:scale-[0.99]';
+    }
+    return getProfStyle(app.professionalId);
   };
 
   // Responsive widths and scrolling based on number of columns (days)
@@ -250,11 +264,23 @@ export default function AgendaCalendario({
                     const profObj = professionals.find(p => p.id === app.professionalId);
                     const initials = profObj ? profObj.initials : '??';
 
+                    const isConcluidoOrFalta = app.status === 'Concluído' || app.status === 'Não Compareceu';
+                    const isCancelado = app.status === 'Cancelado';
+
+                    const handleBlockClick = () => {
+                      if (isConcluidoOrFalta) return;
+                      if (isCancelado) {
+                        setReactivateApp(app);
+                      } else {
+                        onPaymentClick(app);
+                      }
+                    };
+
                     return (
                       <div
                         key={app.id}
-                        onClick={() => onToggleStatus(app.id, app.status)}
-                        className={`absolute border rounded-xl overflow-hidden text-left z-20 transition-all duration-200 ${getProfStyle(app.professionalId)}`}
+                        onClick={handleBlockClick}
+                        className={`absolute border rounded-xl overflow-hidden text-left z-20 transition-all duration-200 ${getAppointmentStyle(app)}`}
                         style={{ 
                           top: `${topPx}px`, 
                           height: `${heightPx}px`, 
@@ -273,18 +299,6 @@ export default function AgendaCalendario({
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && app.status !== 'Não Compareceu' && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onPaymentClick(app);
-                                  }}
-                                  className="bg-gold-400 text-black p-0.5 rounded hover:bg-gold-500 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
-                                  title="Dar Baixa"
-                                >
-                                  <DollarSign className="w-2.5 h-2.5" />
-                                </button>
-                              )}
                               {showInitials && (
                                 <span className="w-4 h-4 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold shrink-0" title={profObj?.name}>
                                   {initials}
@@ -295,32 +309,19 @@ export default function AgendaCalendario({
                         ) : (
                           <div className="flex flex-col justify-between h-full w-full p-2 text-xs">
                             <div>
-                              <div className="flex items-center justify-between gap-1 leading-none">
-                                <span className="text-xs font-semibold opacity-75">
-                                  {app.time}–{calculateEndTimeStr(app.time, app.duration)}
-                                </span>
+                              <div className="flex items-start justify-between gap-2 leading-none">
+                                <p className="font-extrabold text-white truncate leading-tight flex-1 min-w-0">
+                                  {app.clientName}
+                                </p>
                                 {showInitials && (
                                   <span className="w-4.5 h-4.5 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold shrink-0" title={profObj?.name}>
                                     {initials}
                                   </span>
                                 )}
                               </div>
-                              <p className="font-extrabold text-white mt-1.5 truncate leading-tight">{app.clientName}</p>
-                            </div>
-
-                            <div className="flex justify-end items-center mt-1 pt-1.5 border-t border-white/5 leading-none">
-                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && app.status !== 'Não Compareceu' && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onPaymentClick(app);
-                                  }}
-                                  className="bg-gold-400 text-black text-xs font-bold px-1.5 py-0.5 rounded hover:bg-gold-500 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
-                                  title="Dar Baixa"
-                                >
-                                  <DollarSign className="w-2.5 h-2.5" />
-                                </button>
-                              )}
+                              <span className="text-xs font-semibold opacity-75 mt-1.5 block">
+                                {app.time}–{calculateEndTimeStr(app.time, app.duration)}
+                              </span>
                             </div>
                           </div>
                         )}
@@ -333,6 +334,47 @@ export default function AgendaCalendario({
           </div>
         </div>
       </div>
+
+      {/* Reactivation Dialog */}
+      {reactivateApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setReactivateApp(null)}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="bg-card-bg border border-border-dark w-full max-w-sm rounded-2xl shadow-2xl p-6 relative z-10 text-center space-y-6 animate-modal-in">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white">Reativar Agendamento</h3>
+              <p className="text-sm text-gray-400">
+                Este agendamento foi cancelado. Deseja reativá-lo?
+              </p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  onReactivate(reactivateApp.id);
+                  setReactivateApp(null);
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-gold-400 hover:bg-gold-500 text-black text-xs font-bold transition-colors cursor-pointer h-11"
+              >
+                Reativar Agendamento
+              </button>
+              <button
+                type="button"
+                onClick={() => setReactivateApp(null)}
+                className="w-full py-3 px-4 rounded-xl border border-border-dark text-xs font-bold text-gray-400 hover:bg-white/5 transition-colors cursor-pointer h-11"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
