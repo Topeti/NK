@@ -71,7 +71,7 @@ export default function AgendaTabela({
                     <p className="text-[10px] text-gray-400 leading-none mt-0.5">{activeProf.specialty}</p>
                   </div>
                 </div>
-                <span className="text-[10px] text-gray-500 font-semibold uppercase">
+                <span className="text-xs text-gray-500 font-semibold uppercase">
                   {profApps.length} agendados
                 </span>
               </div>
@@ -117,24 +117,28 @@ export default function AgendaTabela({
                       <div 
                         className={`border rounded-xl p-2.5 flex flex-col justify-between h-full min-h-[52px] ${statusStyles[coveringApp.status]}`}
                       >
-                        <div className="flex justify-between items-start gap-1 leading-none">
-                          <div>
-                            <div className="flex items-center gap-1 text-[10px] font-bold">
-                              <Clock className="w-3 h-3 shrink-0" />
+                        <div className="flex justify-between items-start gap-3 leading-none">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1 text-xs font-bold">
+                              <Clock className="w-3.5 h-3.5 shrink-0" />
                               <span>{coveringApp.time}</span>
-                              <span className="text-[9px] opacity-75 ml-1">({coveringApp.duration}m)</span>
+                              <span className="text-xs opacity-75 ml-1">({coveringApp.duration}m)</span>
                             </div>
-                            <p className="text-xs font-extrabold text-white mt-1 truncate max-w-[200px]">
+                            <p className="text-xs font-extrabold text-white mt-1 truncate">
                               {coveringApp.clientName}
                             </p>
-                            <p className="text-[10px] opacity-80 truncate mt-0.5">{coveringApp.service}</p>
+                            <p className="text-xs opacity-80 truncate mt-0.5">{coveringApp.service}</p>
                           </div>
                           
                           <button 
                             onClick={() => onToggleStatus(coveringApp.id, coveringApp.status)}
-                            title="Alternar status (Agendado -> Confirmado -> Cancelado)"
-                            className={`text-[8px] font-extrabold tracking-wider px-1.5 py-0.5 rounded uppercase border border-current hover:bg-white/5 transition-all duration-150 btn-secondary cursor-pointer shrink-0 ${
-                              coveringApp.status === 'Agendado' ? 'animate-badge-pulse' : ''
+                            title="Alternar status"
+                            className={`h-10 px-3.5 text-xs font-bold rounded-xl uppercase border transition-all duration-200 cursor-pointer shrink-0 flex items-center justify-center gap-1.5 active:scale-97 hover:brightness-110 ${
+                              coveringApp.status === 'Agendado' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
+                              coveringApp.status === 'Confirmado' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500' :
+                              coveringApp.status === 'Concluído' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                              coveringApp.status === 'Não Compareceu' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
+                              'bg-red-500/10 border-red-500/30 text-red-500'
                             }`}
                           >
                             {coveringApp.status}
@@ -142,25 +146,29 @@ export default function AgendaTabela({
                         </div>
 
                         <div className="flex justify-between items-center mt-2 pt-1.5 border-t border-white/5 leading-none">
-                          <span className="text-[10px] font-bold text-white">
-                            R$ {coveringApp.price.toFixed(2).replace('.', ',')}
+                          <span className="text-xs font-bold text-white">
+                            R${coveringApp.price.toFixed(2).replace('.', ',')}
                           </span>
 
                           <div className="flex gap-2 shrink-0">
                             {coveringApp.status === 'Concluído' ? (
-                              <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                              <span className="flex items-center gap-0.5 text-xs text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
                                 <Check className="w-2.5 h-2.5" /> {coveringApp.paymentMethod}
                               </span>
                             ) : coveringApp.status === 'Cancelado' ? (
-                              <span className="text-[9px] text-red-400 font-bold px-1.5 py-0.5">
+                              <span className="text-xs text-red-400 font-bold px-1.5 py-0.5">
                                 Cancelado
+                              </span>
+                            ) : coveringApp.status === 'Não Compareceu' ? (
+                              <span className="text-xs text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded">
+                                Não Compareceu
                               </span>
                             ) : (
                               <button
                                 onClick={() => onPaymentClick(coveringApp)}
-                                className="bg-gold-400 text-black text-[9px] font-bold px-2 py-0.5 rounded hover:bg-gold-550 cursor-pointer transition-colors flex items-center gap-0.5"
+                                className="h-10 px-3 bg-gold-400 hover:bg-gold-500 active:scale-97 text-black text-xs font-bold rounded-xl transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
                               >
-                                <DollarSign className="w-2.5 h-2.5" /> Dar Baixa
+                                <DollarSign className="w-3.5 h-3.5" /> Dar Baixa
                               </button>
                             )}
                           </div>

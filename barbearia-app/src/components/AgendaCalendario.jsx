@@ -163,7 +163,7 @@ export default function AgendaCalendario({
             const isToday = day.dateStr === todayDateStr;
             return (
               <div key={day.dateStr} className={`${colWidthClass} text-center select-none`}>
-                <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isToday ? 'text-gold-400' : 'text-gray-400'}`}>
+                <span className={`text-xs font-extrabold uppercase tracking-wider ${isToday ? 'text-gold-400' : 'text-gray-400'}`}>
                   {day.shortLabel}
                 </span>
                 <span className={`block text-base font-extrabold mt-0.5 ${isToday ? 'text-gold-400' : 'text-white'}`}>
@@ -180,7 +180,7 @@ export default function AgendaCalendario({
           {/* Discrete Time Labels Axis (Left side) */}
           <div className="w-[64px] shrink-0 text-right pr-4 select-none relative">
             {slotTimes.map((h, idx) => (
-              <div key={h} className="absolute right-4 text-[10px] font-bold text-gray-500 h-[48px] flex items-center justify-end" style={{ top: `${idx * 48}px` }}>
+              <div key={h} className="absolute right-4 text-xs font-bold text-gray-500 h-[48px] flex items-center justify-end" style={{ top: `${idx * 48}px` }}>
                 {h}
               </div>
             ))}
@@ -263,46 +263,44 @@ export default function AgendaCalendario({
                         }}
                       >
                         {app.spanSlots === 1 ? (
-                          // 30-MIN COMPACT CARD LAYOUT (height = 44px)
-                          <div className="flex items-center justify-between h-full w-full p-2 leading-none">
-                            <div className="min-w-0 flex flex-col justify-center">
-                              <p className="text-[11px] font-bold text-white truncate leading-tight">
+                          <div className="flex items-center justify-between h-full w-full p-2 gap-2 leading-none">
+                            <div className="min-w-0 flex-1 flex flex-col justify-center">
+                              <p className="text-xs font-bold text-white truncate leading-tight">
                                 {app.clientName}
                               </p>
-                              <span className="text-[9px] font-semibold opacity-75 mt-0.5">
+                              <span className="text-xs font-semibold opacity-75 mt-0.5">
                                 {app.time}–{calculateEndTimeStr(app.time, app.duration)}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && (
+                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && app.status !== 'Não Compareceu' && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onPaymentClick(app);
                                   }}
-                                  className="bg-gold-400 text-black p-0.5 rounded hover:bg-gold-505 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
+                                  className="bg-gold-400 text-black p-0.5 rounded hover:bg-gold-500 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
                                   title="Dar Baixa"
                                 >
                                   <DollarSign className="w-2.5 h-2.5" />
                                 </button>
                               )}
                               {showInitials && (
-                                <span className="w-4 h-4 rounded-full bg-white/15 text-white flex items-center justify-center text-[8px] font-bold shrink-0" title={profObj?.name}>
+                                <span className="w-4 h-4 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold shrink-0" title={profObj?.name}>
                                   {initials}
                                 </span>
                               )}
                             </div>
                           </div>
                         ) : (
-                          // MULTI-SLOT EXPANDED CARD LAYOUT (height >= 92px)
-                          <div className="flex flex-col justify-between h-full w-full p-2 text-[10px] md:text-xs">
+                          <div className="flex flex-col justify-between h-full w-full p-2 text-xs">
                             <div>
                               <div className="flex items-center justify-between gap-1 leading-none">
-                                <span className="text-[9px] font-semibold opacity-75">
+                                <span className="text-xs font-semibold opacity-75">
                                   {app.time}–{calculateEndTimeStr(app.time, app.duration)}
                                 </span>
                                 {showInitials && (
-                                  <span className="w-4.5 h-4.5 rounded-full bg-white/15 text-white flex items-center justify-center text-[8px] font-bold shrink-0" title={profObj?.name}>
+                                  <span className="w-4.5 h-4.5 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold shrink-0" title={profObj?.name}>
                                     {initials}
                                   </span>
                                 )}
@@ -311,13 +309,13 @@ export default function AgendaCalendario({
                             </div>
 
                             <div className="flex justify-end items-center mt-1 pt-1.5 border-t border-white/5 leading-none">
-                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && (
+                              {app.status !== 'Concluído' && app.status !== 'Cancelado' && app.status !== 'Não Compareceu' && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onPaymentClick(app);
                                   }}
-                                  className="bg-gold-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded hover:bg-gold-505 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
+                                  className="bg-gold-400 text-black text-xs font-bold px-1.5 py-0.5 rounded hover:bg-gold-500 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150 shrink-0"
                                   title="Dar Baixa"
                                 >
                                   <DollarSign className="w-2.5 h-2.5" />

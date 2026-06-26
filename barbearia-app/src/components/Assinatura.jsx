@@ -1,413 +1,571 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
-  ShieldCheck, 
-  AlertOctagon, 
-  Calendar, 
-  History, 
-  Sparkles, 
-  HelpCircle,
+  Search, 
+  CheckCircle2, 
+  AlertTriangle, 
+  XCircle, 
+  Clock, 
+  TrendingUp, 
+  User, 
+  Mail, 
+  Phone, 
+  Calendar,
   X,
-  Lock,
-  Plus
+  BellRing,
+  HelpCircle,
+  FileText
 } from 'lucide-react';
 
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+});
+
 export default function Assinatura({ subClients, setSubClients }) {
-  const [activeClientKey, setActiveClientKey] = useState('clientA'); // 'clientA' or 'clientB'
-  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
-  const [isCardModalRender, setIsCardModalRender] = useState(false);
-  const [isCardModalExiting, setIsCardModalExiting] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'Ativa', 'Falha no pagamento', 'Cancelada', 'Pendente'
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Details modal state
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isDetailRender, setIsDetailRender] = useState(false);
+  const [isDetailExiting, setIsDetailExiting] = useState(false);
 
-  const [cardForm, setCardForm] = useState({
-    name: '',
-    number: '',
-    expiry: '',
-    cvv: ''
-  });
-
+  // Handle modal animation hooks
   useEffect(() => {
-    if (isCardModalOpen) {
-      setIsCardModalRender(true);
-      setIsCardModalExiting(false);
-    } else if (isCardModalRender) {
-      setIsCardModalExiting(true);
+    if (isDetailOpen) {
+      setIsDetailRender(true);
+      setIsDetailExiting(false);
+    } else if (isDetailRender) {
+      setIsDetailExiting(true);
       const timer = setTimeout(() => {
-        setIsCardModalRender(false);
+        setIsDetailRender(false);
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [isCardModalOpen]);
+  }, [isDetailOpen, isDetailRender]);
 
-  const client = subClients[activeClientKey];
-  const isActive = client.status === 'Ativo';
-
-  const handleCardChangeSubmit = (e) => {
-    e.preventDefault();
-    if (!cardForm.number.trim()) return;
-
-    // Get last 4 digits
-    const last4 = cardForm.number.replace(/\s/g, '').slice(-4) || '9999';
-
-    // Update parent state
-    setSubClients(prev => ({
-      ...prev,
-      [activeClientKey]: {
-        ...prev[activeClientKey],
-        cardLast4: last4
-      }
-    }));
-
-    // Reset card form and close modal
-    setCardForm({ name: '', number: '', expiry: '', cvv: '' });
-    setIsCardModalOpen(false);
+  const handleOpenDetails = (client) => {
+    setSelectedClient(client);
+    setIsDetailOpen(true);
   };
 
-  const handleScheduleClick = () => {
-    if (!isActive) return;
-    alert(`Agendamento pelo Plano Ilimitado liberado para o cliente ${client.name}! (Simulação de agendamento concluída)`);
+  const handleCloseDetails = () => {
+    setIsDetailOpen(false);
+  };
+
+  const handleNotifyClient = (clientName) => {
+    alert(`Notificação enviada com sucesso para ${clientName}!`);
+  };
+
+  // 1. Calculate dynamic statistics
+  const totalActive = subClients.filter(c => c.status === 'Ativa').length;
+  const totalFailed = subClients.filter(c => c.status === 'Falha no pagamento').length;
+  const totalCanceled = subClients.filter(c => c.status === 'Cancelada').length;
+  const totalPending = subClients.filter(c => c.status === 'Pendente').length;
+  
+  // MRR = sum of plan prices of active subscriptions
+  const mrr = subClients
+    .filter(c => c.status === 'Ativa')
+    .reduce((sum, c) => sum + c.planPrice, 0);
+
+  // 2. Filter subscriber list
+  const filteredSubscribers = subClients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          client.planName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || client.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  // Helper for status badge styles
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'Ativa':
+        return { label: 'Ativa', classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' };
+      case 'Falha no pagamento':
+        return { label: 'Falha no Pgto', classes: 'bg-red-500/10 text-red-400 border-red-500/30' };
+      case 'Cancelada':
+        return { label: 'Cancelada', classes: 'bg-gray-500/10 text-gray-400 border-gray-500/30' };
+      case 'Pendente':
+        return { label: 'Pendente', classes: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30' };
+      default:
+        return { label: status, classes: 'bg-white/5 text-gray-400 border-white/10' };
+    }
   };
 
   return (
     <div className="space-y-6">
+      
       {/* Top Header Row with Title */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-border-dark">
         <div>
           <h2 className="text-lg md:text-xl font-black text-white uppercase tracking-wider select-none">
-            Assinatura
+            Assinaturas
           </h2>
-          <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
-            Planos recorrentes, histórico e faturamento de membros
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
+            Dashboard administrativo de planos e receita recorrente
           </p>
         </div>
       </div>
 
-      {/* Simulation Selector Bar */}
-      <div className="bg-card-bg border border-border-dark p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h4 className="text-base font-bold text-white tracking-tight">Simulador de Visualização do Cliente</h4>
-          <p className="text-xs text-gray-400 mt-1">Alterne entre os clientes para simular estados de assinatura ativos e expirados.</p>
+      {/* Summary Cards */}
+      <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+        
+        {/* Metric 1: Active */}
+        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-gold-400/30 transition-all duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Ativas</p>
+              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalActive} Planos</h3>
+              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                Funcionando
+              </span>
+            </div>
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-emerald-400">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+          </div>
         </div>
 
-        {/* Toggle Segment */}
-        <div className="flex gap-2 bg-black/40 border border-border-dark p-1.5 rounded-xl w-full md:w-auto">
-          <button
-            onClick={() => setActiveClientKey('clientA')}
-            className={`flex-1 md:flex-initial px-4 py-2.5 rounded-lg text-xs font-bold btn-secondary ${
-              activeClientKey === 'clientA' 
-                ? 'bg-gold-400 text-black text-black/90 shadow-lg' 
-                : 'text-gray-400 border border-transparent'
-            }`}
-          >
-            Cliente A (Bernardo - Ativo)
-          </button>
-          <button
-            onClick={() => setActiveClientKey('clientB')}
-            className={`flex-1 md:flex-initial px-4 py-2.5 rounded-lg text-xs font-bold btn-secondary ${
-              activeClientKey === 'clientB' 
-                ? 'bg-gold-400 text-black text-black/90 shadow-lg' 
-                : 'text-gray-400 border border-transparent'
-            }`}
-          >
-            Cliente B (Carlos - Expirado)
-          </button>
+        {/* Metric 2: Failures */}
+        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-red-500/30 transition-all duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Falha no Pagamento</p>
+              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalFailed} Contas</h3>
+              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
+                Requer Atenção
+              </span>
+            </div>
+            <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl text-red-400">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 3: Canceled */}
+        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-border-dark transition-all duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Canceladas</p>
+              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalCanceled} Contas</h3>
+              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
+                Inativas
+              </span>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl text-gray-400">
+              <XCircle className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 4: MRR */}
+        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gold-400/5 rounded-full blur-2xl"></div>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">MRR (Receita Recorrente)</p>
+              <h3 className="text-2xl font-black text-gold-400 mt-2 tracking-tight">
+                {currencyFormatter.format(mrr)}
+              </h3>
+              <p className="text-xs text-gray-500 mt-2">
+                Faturamento mensal garantido
+              </p>
+            </div>
+            <div className="bg-gold-400/10 border border-gold-400/20 p-2.5 rounded-xl text-gold-400">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="bg-card-bg border border-border-dark p-4 md:p-6 rounded-2xl space-y-4">
+        <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
+          
+          {/* Search Input */}
+          <div className="relative w-full lg:max-w-xs">
+            <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Buscar cliente ou plano..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 focus:outline-none"
+            />
+          </div>
+
+          {/* Filter Chips */}
+          <div className="flex flex-wrap gap-2 select-none">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer ${
+                filterStatus === 'all'
+                  ? 'bg-gold-400 text-black border-gold-400'
+                  : 'bg-black/30 text-gray-400 border-border-dark hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Todas ({subClients.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('Ativa')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                filterStatus === 'Ativa'
+                  ? 'bg-emerald-500 text-black border-emerald-500'
+                  : 'bg-black/30 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/5'
+              }`}
+            >
+              Ativas ({totalActive})
+            </button>
+            <button
+              onClick={() => setFilterStatus('Falha no pagamento')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                filterStatus === 'Falha no pagamento'
+                  ? 'bg-red-500 text-white border-red-500'
+                  : 'bg-black/30 text-red-400 border-red-500/20 hover:bg-red-500/5'
+              }`}
+            >
+              Falha no Pgto ({totalFailed})
+            </button>
+            <button
+              onClick={() => setFilterStatus('Cancelada')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                filterStatus === 'Cancelada'
+                  ? 'bg-gray-500 text-white border-gray-500'
+                  : 'bg-black/30 text-gray-400 border-border-dark hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Canceladas ({totalCanceled})
+            </button>
+            <button
+              onClick={() => setFilterStatus('Pendente')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                filterStatus === 'Pendente'
+                  ? 'bg-yellow-500 text-black border-yellow-500'
+                  : 'bg-black/30 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/5'
+              }`}
+            >
+              Pendentes ({totalPending})
+            </button>
+          </div>
+
         </div>
       </div>
 
-      {/* Main Grid: Card detail + Usage history */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Subscription details Card */}
-        <div className="lg:col-span-2 bg-card-bg border border-border-dark rounded-2xl overflow-hidden card-premium flex flex-col justify-between relative">
+      {/* Responsive List View */}
+      {/* 1. Desktop Table */}
+      <div className="hidden md:block overflow-hidden border border-border-dark rounded-2xl bg-card-bg shadow-lg">
+        <table className="w-full border-collapse text-left table-fixed">
+          <thead>
+            <tr className="border-b border-border-dark bg-black/20 text-gray-400 font-bold text-xs select-none">
+              <th className="p-4 w-[240px]">Assinante</th>
+              <th className="p-4">Plano</th>
+              <th className="p-4 w-[110px] hidden xl:table-cell">Valor</th>
+              <th className="p-4 w-[130px]">Status</th>
+              <th className="p-4 w-[150px] hidden lg:table-cell">Próxima Cobrança</th>
+              <th className="p-4 w-[120px] text-right">Ação</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border-dark/60 text-xs md:text-sm">
+            {filteredSubscribers.map((client) => {
+              const badgeInfo = getStatusBadge(client.status);
+              const isFailedRow = client.status === 'Falha no pagamento';
+              
+              return (
+                <tr key={client.id} className="hover:bg-white/[0.01] transition-colors duration-150">
+                  {/* Name column with avatar */}
+                  <td className={`p-4 ${isFailedRow ? 'border-l-4 border-l-red-500 pl-3' : ''}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-xs font-bold text-gold-400 select-none shrink-0">
+                        {client.initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-white truncate">{client.name}</p>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">{client.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {/* Plan Name */}
+                  <td className="p-4">
+                    <p className="font-semibold text-gray-200 truncate">{client.planName}</p>
+                  </td>
+                  
+                  {/* Plan Value */}
+                  <td className="p-4 hidden xl:table-cell">
+                    <p className="font-bold text-white">
+                      {currencyFormatter.format(client.planPrice)}
+                      <span className="text-xs text-gray-500 font-normal">/mês</span>
+                    </p>
+                  </td>
+                  
+                  {/* Status Badge */}
+                  <td className="p-4">
+                    <span className={`inline-block text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border select-none whitespace-nowrap shrink-0 ${badgeInfo.classes}`}>
+                      {badgeInfo.label}
+                    </span>
+                  </td>
+                  
+                  {/* Next Billing/Cancellation date */}
+                  <td className="p-4 hidden lg:table-cell">
+                    <span className="text-gray-300 font-medium">
+                      {client.status === 'Cancelada' ? (
+                        <span className="text-red-400/80">
+                          Cancelado em {client.cancellationDate}
+                        </span>
+                      ) : (
+                        client.nextBilling || '-'
+                      )}
+                    </span>
+                  </td>
+                  
+                  {/* Details Button */}
+                  <td className="p-4 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDetails(client)}
+                      className="bg-black/30 border border-border-dark text-xs font-bold px-3 py-1.5 rounded-lg text-gold-400 hover:text-white hover:bg-white/5 active:scale-97 transition-all duration-200 btn-secondary cursor-pointer h-10 flex items-center justify-center inline-flex"
+                    >
+                      Ver detalhes
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 2. Mobile Stacked Cards */}
+      <div className="md:hidden space-y-4">
+        {filteredSubscribers.map((client) => {
+          const badgeInfo = getStatusBadge(client.status);
           
-          {/* Top Decorative bar */}
-          <div className={`h-1.5 w-full ${isActive ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
-
-          {/* Body */}
-          <div className="p-6 space-y-6">
-            
-            {/* Status & Name */}
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Cliente Conectado</span>
-                <h3 className="text-xl font-bold text-white mt-1">{client.name}</h3>
-                <p className="text-xs text-gold-400 font-medium mt-0.5">{client.planName}</p>
-              </div>
-
-              {/* Status Badge */}
-              <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase border ${
-                isActive 
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                  : 'bg-red-500/10 border-red-500/30 text-red-500'
-              }`}>
-                {isActive ? (
-                  <>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span>Plano Ativo</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertOctagon className="w-4 h-4 text-red-500" />
-                    <span>Plano Expirado</span>
-                  </>
-                )}
-              </span>
-            </div>
-
-            {/* Plan Specs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/30 border border-border-dark/60 p-4 rounded-xl">
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase font-bold">Mensalidade</p>
-                <p className="text-lg font-bold text-white mt-0.5">{client.planPrice}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase font-bold">
-                  {isActive ? 'Próxima Cobrança' : 'Expirou Em'}
-                </p>
-                <p className="text-lg font-bold text-white mt-0.5 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-gold-400" />
-                  {client.nextBilling}
-                </p>
-              </div>
-            </div>
-
-            {/* Payment Method Details */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Forma de Cobrança</p>
-              <div className="flex items-center justify-between p-4 bg-black/20 border border-border-dark rounded-xl">
+          return (
+            <div 
+              key={client.id}
+              className="bg-card-bg border border-border-dark p-4 rounded-xl flex flex-col justify-between space-y-4 card-premium"
+            >
+              <div className="flex justify-between items-start gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="bg-white/5 border border-white/10 p-2.5 rounded-lg text-gray-400">
-                    <CreditCard className="w-6 h-6" />
+                  <div className="w-9 h-9 rounded-full bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-xs font-bold text-gold-400 select-none shrink-0">
+                    {client.initials}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">Cartão de Crédito Visa</p>
-                    <p className="text-xs text-gray-500">Final •••• •••• •••• {client.cardLast4}</p>
+                    <h5 className="font-bold text-white text-sm">{client.name}</h5>
+                    <p className="text-xs text-gray-500">{client.email}</p>
                   </div>
                 </div>
                 
-                <button
-                  type="button"
-                  onClick={() => setIsCardModalOpen(true)}
-                  className="px-3.5 py-2 rounded-lg border border-border-dark text-xs font-bold text-gray-400 btn-secondary"
-                >
-                  Trocar Cartão
-                </button>
+                <span className={`inline-block text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase border shrink-0 ${badgeInfo.classes}`}>
+                  {badgeInfo.label}
+                </span>
               </div>
-            </div>
 
-          </div>
-
-          {/* Footer Actions */}
-          <div className="p-6 border-t border-border-dark bg-black/20 flex flex-col sm:flex-row gap-3 justify-between items-center">
-            
-            {/* Tooltip text if expired */}
-            <div className="w-full sm:w-auto text-center sm:text-left">
-              {!isActive && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-red-400 font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20">
-                  <AlertOctagon className="w-3.5 h-3.5 shrink-0" />
-                  Renove seu plano para agendar
-                </span>
-              )}
-              {isActive && (
-                <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 inline-flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                  Agendamentos ilimitados autorizados
-                </span>
-              )}
-            </div>
-
-            {/* Book button */}
-            <button
-              type="button"
-              onClick={handleScheduleClick}
-              disabled={!isActive}
-              className={`w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 ${
-                isActive
-                  ? 'bg-gold-400 text-black btn-primary'
-                  : 'bg-white/5 border border-white/10 text-gray-500 cursor-not-allowed'
-              }`}
-              title={!isActive ? 'Renove seu plano para agendar' : 'Fazer Agendamento'}
-            >
-              <Plus className="w-4 h-4" />
-              Agendar Pelo Plano
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* Usage history panel */}
-        <div className="bg-card-bg border border-border-dark p-6 rounded-2xl card-premium">
-          <div className="flex items-center gap-2 mb-6">
-            <History className="w-5 h-5 text-gold-400" />
-            <h4 className="text-base font-bold text-white tracking-tight">Utilização no Mês</h4>
-          </div>
-
-          <div className="space-y-4">
-            {client.history.map((hItem) => (
-              <div 
-                key={hItem.id} 
-                className="p-3 bg-black/30 border border-border-dark/60 rounded-xl space-y-1.5 relative overflow-hidden group card-premium"
-              >
-                {/* Visual badge inside history */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] text-gray-500 font-semibold">{hItem.date}</span>
-                    <p className="text-sm font-bold text-white mt-0.5">{hItem.service}</p>
-                    <p className="text-xs text-gray-400">Atendido por: {hItem.professional}</p>
-                  </div>
-                  
-                  {/* Premium star seal */}
-                  <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-gold-400/10 text-gold-400 border border-gold-400/20">
-                    <Sparkles className="w-2.5 h-2.5" /> PLANO
-                  </span>
+              <div className="grid grid-cols-2 gap-3 text-xs border-t border-border-dark/40 pt-3">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-bold">Plano</p>
+                  <p className="text-gray-200 mt-0.5 font-semibold">{client.planName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-bold">Valor</p>
+                  <p className="text-white mt-0.5 font-bold">{currencyFormatter.format(client.planPrice)}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-gray-500 uppercase font-bold">
+                    {client.status === 'Cancelada' ? 'Cancelamento' : 'Próxima Cobrança'}
+                  </p>
+                  <p className={`mt-0.5 font-medium ${client.status === 'Cancelada' ? 'text-red-400/80' : 'text-gray-300'}`}>
+                    {client.status === 'Cancelada' ? client.cancellationDate : client.nextBilling || '-'}
+                  </p>
                 </div>
               </div>
-            ))}
 
-            {client.history.length === 0 && (
-              <p className="text-xs text-gray-500 text-center py-6">Nenhum serviço consumido neste mês.</p>
-            )}
-          </div>
-        </div>
-
+              <button
+                type="button"
+                onClick={() => handleOpenDetails(client)}
+                className="w-full py-2.5 bg-black/30 border border-border-dark text-[11px] font-bold rounded-lg text-gold-400 flex items-center justify-center gap-1.5 hover:text-white hover:bg-white/5 transition-all duration-200 btn-secondary cursor-pointer"
+              >
+                <span>Ver detalhes da assinatura</span>
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* MODAL: Card Exchange Modal */}
-      {isCardModalRender && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isCardModalExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
-            onClick={() => setIsCardModalOpen(false)}
-          ></div>
-          
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-2xl shadow-2xl relative z-10 overflow-hidden ${
-            isCardModalExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
-            <form onSubmit={handleCardChangeSubmit}>
+      {filteredSubscribers.length === 0 && (
+        <div className="text-center py-12 bg-card-bg border border-border-dark rounded-2xl">
+          <CreditCard className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-gray-400">Nenhum assinante encontrado com os filtros aplicados.</p>
+        </div>
+      )}
+
+      {/* DETAILS MODAL */}
+      {isDetailRender && selectedClient && (() => {
+        const client = selectedClient;
+        const isFailed = client.status === 'Falha no pagamento';
+        const isCanceled = client.status === 'Cancelada';
+        
+        return (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            {/* Backdrop */}
+            <div 
+              className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
+                isDetailExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`} 
+              onClick={handleCloseDetails}
+            ></div>
+            
+            {/* Modal Box */}
+            <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
+              isDetailExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
               
               {/* Header */}
-              <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-gold-400" />
+              <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-sm font-bold text-gold-400 select-none">
+                    {client.initials}
+                  </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Alterar Cartão de Crédito</h3>
-                    <p className="text-[10px] text-gray-500 mt-0.5">As próximas mensalidades serão debitadas aqui.</p>
+                    <h3 className="text-base font-bold text-white truncate max-w-[240px]">{client.name}</h3>
+                    <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Ficha do Assinante</span>
                   </div>
                 </div>
                 <button 
                   type="button" 
-                  onClick={() => setIsCardModalOpen(false)}
-                  className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 btn-icon-only"
+                  onClick={handleCloseDetails}
+                  className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Form Body */}
-              <div className="p-6 space-y-4">
+              {/* Body */}
+              <div className="p-6 space-y-5 overflow-y-auto flex-1 text-left">
                 
-                {/* Cardholder Name */}
-                <div className="flex flex-col-reverse gap-1.5">
-                  <input
-                    type="text"
-                    required
-                    id="cardName"
-                    placeholder="Ex: BERNARDO SOUZA"
-                    value={cardForm.name}
-                    onChange={(e) => setCardForm(prev => ({ ...prev, name: e.target.value.toUpperCase() }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer uppercase placeholder-gray-600"
-                  />
-                  <label htmlFor="cardName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome no Cartão</label>
-                </div>
-
-                {/* Card Number */}
-                <div className="flex flex-col-reverse gap-1.5">
-                  <input
-                    type="text"
-                    required
-                    id="cardNumber"
-                    maxLength="19"
-                    placeholder="4589 1234 5678 9012"
-                    value={cardForm.number}
-                    onChange={(e) => {
-                      // Basic card formatter
-                      const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
-                      setCardForm(prev => ({ ...prev, number: val }));
-                    }}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer placeholder-gray-600 font-mono"
-                  />
-                  <label htmlFor="cardNumber" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Número do Cartão</label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Expiration Date */}
-                  <div className="flex flex-col-reverse gap-1.5">
-                    <input
-                      type="text"
-                      required
-                      id="cardExpiry"
-                      maxLength="5"
-                      placeholder="MM/AA"
-                      value={cardForm.expiry}
-                      onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, '');
-                        if (val.length > 2) {
-                          val = val.substring(0, 2) + '/' + val.substring(2, 4);
-                        }
-                        setCardForm(prev => ({ ...prev, expiry: val }));
-                      }}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer placeholder-gray-600"
-                    />
-                    <label htmlFor="cardExpiry" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Validade</label>
+                {/* Status-specific warning banners */}
+                {isFailed && (
+                  <div className="p-4 bg-red-500/5 border border-red-500/15 rounded-xl space-y-3">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <p className="font-bold text-red-400 uppercase tracking-wide">Cobrança Rejeitada</p>
+                        <p className="text-gray-300 mt-1">Motivo: {client.failureReason}</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifyClient(client.name)}
+                      className="w-full py-2.5 px-3 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-red-500/10 h-10"
+                    >
+                      <BellRing className="w-3.5 h-3.5 whitespace-nowrap shrink-0" />
+                      <span>Notificar cliente por WhatsApp</span>
+                    </button>
                   </div>
+                )}
 
-                  {/* CVV */}
-                  <div className="flex flex-col-reverse gap-1.5">
-                    <input
-                      type="password"
-                      required
-                      id="cardCvv"
-                      maxLength="3"
-                      placeholder="123"
-                      value={cardForm.cvv}
-                      onChange={(e) => setCardForm(prev => ({ ...prev, cvv: e.target.value.replace(/\D/g, '') }))}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer placeholder-gray-600 font-mono"
-                    />
-                    <label htmlFor="cardCvv" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">CVC / CVV</label>
+                {isCanceled && (
+                  <div className="p-4 bg-gray-500/5 border border-border-dark rounded-xl text-xs space-y-1">
+                    <p className="font-bold text-gray-400 uppercase tracking-wide">Plano Cancelado</p>
+                    <p className="text-gray-300">{client.cancellationReason}</p>
+                    <p className="text-gray-500 text-[10px]">Data de desativação: {client.cancellationDate}</p>
+                  </div>
+                )}
+
+                {/* Subscriptions Info Details */}
+                <div className="space-y-3">
+                  <p className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Informações da Assinatura</p>
+                  <div className="grid grid-cols-2 gap-4 bg-black/20 p-4 rounded-xl border border-white/5 text-xs">
+                    <div>
+                      <p className="text-gray-500">Plano Selecionado</p>
+                      <p className="font-bold text-white mt-0.5">{client.planName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Valor Mensal</p>
+                      <p className="font-bold text-gold-400 mt-0.5">{currencyFormatter.format(client.planPrice)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Forma de Pagamento</p>
+                      <div className="flex items-center gap-1 mt-0.5 text-white">
+                        <CreditCard className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="font-medium">Card final •••• {client.cardLast4}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Método Operador</p>
+                      <p className="font-medium text-white mt-0.5">{client.paymentMethod}</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Safe credentials warning */}
-                <div className="flex gap-2 items-center text-[10px] text-gray-500 mt-2">
-                  <Lock className="w-3.5 h-3.5 shrink-0 text-gold-400" />
-                  <span>Ambiente criptografado. Suas informações de cartão estão seguras.</span>
+                {/* Client Contact Info */}
+                <div className="space-y-3">
+                  <p className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Contato do Cliente</p>
+                  <div className="space-y-2.5 text-xs">
+                    <div className="flex items-center gap-2.5 text-gray-300">
+                      <Mail className="w-4 h-4 text-gray-500 shrink-0" />
+                      <span>{client.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-gray-300">
+                      <Phone className="w-4 h-4 text-gray-500 shrink-0" />
+                      <span>{client.phone}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment History */}
+                <div className="space-y-3">
+                  <p className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Histórico de Faturas</p>
+                  {client.history && client.history.length > 0 ? (
+                    <div className="border border-border-dark rounded-xl overflow-hidden text-xs">
+                      <div className="grid grid-cols-3 bg-black/30 p-2.5 font-bold text-gray-400 border-b border-border-dark select-none">
+                        <span>Data</span>
+                        <span className="text-center">Valor</span>
+                        <span className="text-right">Status</span>
+                      </div>
+                      {client.history.map((log) => (
+                        <div key={log.id} className="grid grid-cols-3 p-2.5 border-b border-border-dark/60 last:border-b-0 text-gray-300">
+                          <span>{log.date}</span>
+                          <span className="text-center font-semibold text-white">{currencyFormatter.format(log.amount)}</span>
+                          <span className="text-right">
+                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
+                              log.status === 'Pago'
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : 'bg-red-500/10 text-red-400'
+                            }`}>
+                              {log.status}
+                            </span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 border border-dashed border-border-dark rounded-xl text-center text-xs text-gray-500">
+                      Nenhuma cobrança registrada neste ciclo.
+                    </div>
+                  )}
                 </div>
 
               </div>
 
-              {/* Actions */}
-              <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3">
+              {/* Footer */}
+              <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsCardModalOpen(false)}
-                  className="flex-1 py-3 px-4 rounded-xl border border-border-dark text-sm font-semibold text-gray-400 btn-secondary"
+                  onClick={handleCloseDetails}
+                  className="w-full py-3 rounded-xl border border-border-dark text-xs font-bold text-gray-400 btn-secondary cursor-pointer hover:bg-white/5 transition-colors h-11"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-sm font-bold btn-primary"
-                >
-                  Confirmar Cartão
+                  Fechar Painel
                 </button>
               </div>
 
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
     </div>
   );

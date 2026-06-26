@@ -45,6 +45,8 @@ export const services = [
 export const calculateNetAndFee = (price, method) => {
   if (!method) return { fee: 0, netAmount: 0 };
   switch (method) {
+    case 'Não Compareceu':
+      return { fee: 0, netAmount: 0 };
     case 'Dinheiro':
     case 'PIX':
       return { fee: 0, netAmount: price };
@@ -224,35 +226,171 @@ export const dailyRevenue = [
   { day: 'Dom', date: week['Sun'].formatted, total: 350 }
 ];
 
-export const subscriptionClients = {
-  clientA: {
-    id: 'clientA',
+export const subscriptionClients = [
+  {
+    id: 1,
     name: 'Bernardo Souza',
-    planName: 'Plano Mensal Corte Ilimitado',
-    planPrice: 'R$ 89,90/mês',
-    status: 'Ativo',
+    initials: 'BS',
+    planName: 'Corte Ilimitado',
+    planPrice: 89.90,
+    status: 'Ativa',
     nextBilling: '12/07/2026',
+    email: 'bernardo.souza@email.com',
+    phone: '(11) 98765-4321',
     cardLast4: '4589',
+    paymentMethod: 'Cartão de Crédito (Visa)',
     history: [
-      { id: 101, service: 'Corte', date: '02/06/2026', professional: 'Nicolas' },
-      { id: 102, service: 'Corte', date: '11/06/2026', professional: 'Nicolas' },
-      { id: 103, service: 'Corte', date: '22/06/2026', professional: 'Gustavo' }
+      { id: 101, date: '12/06/2026', amount: 89.90, status: 'Pago' },
+      { id: 102, date: '12/05/2026', amount: 89.90, status: 'Pago' },
+      { id: 103, date: '12/04/2026', amount: 89.90, status: 'Pago' }
     ]
   },
-  clientB: {
-    id: 'clientB',
-    name: 'Carlos Antunes',
-    planName: 'Plano Mensal Corte Ilimitado',
-    planPrice: 'R$ 89,90/mês',
-    status: 'Expirado',
-    nextBilling: '20/06/2026', // Expired on this date
-    cardLast4: '8821',
+  {
+    id: 2,
+    name: 'Rodrigo Lima',
+    initials: 'RL',
+    planName: 'Corte + Barba Mensal',
+    planPrice: 129.90,
+    status: 'Ativa',
+    nextBilling: '15/07/2026',
+    email: 'rodrigo.lima@email.com',
+    phone: '(11) 99122-3344',
+    cardLast4: '8832',
+    paymentMethod: 'Cartão de Crédito (Mastercard)',
     history: [
-      { id: 104, service: 'Corte', date: '25/05/2026', professional: 'Gustavo' },
-      { id: 105, service: 'Corte', date: '05/06/2026', professional: 'Nicolas' }
+      { id: 201, date: '15/06/2026', amount: 129.90, status: 'Pago' },
+      { id: 202, date: '15/05/2026', amount: 129.90, status: 'Pago' },
+      { id: 203, date: '15/04/2026', amount: 129.90, status: 'Pago' }
     ]
+  },
+  {
+    id: 3,
+    name: 'Aline Santos',
+    initials: 'AS',
+    planName: 'VIP Ilimitado',
+    planPrice: 179.90,
+    status: 'Ativa',
+    nextBilling: '18/07/2026',
+    email: 'aline.santos@email.com',
+    phone: '(11) 97766-5544',
+    cardLast4: '9901',
+    paymentMethod: 'Cartão de Crédito (Visa)',
+    history: [
+      { id: 301, date: '18/06/2026', amount: 179.90, status: 'Pago' },
+      { id: 302, date: '18/05/2026', amount: 179.90, status: 'Pago' },
+      { id: 303, date: '18/04/2026', amount: 179.90, status: 'Pago' }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Matheus Ribeiro',
+    initials: 'MR',
+    planName: 'Corte Ilimitado',
+    planPrice: 89.90,
+    status: 'Ativa',
+    nextBilling: '22/07/2026',
+    email: 'matheus.rib@email.com',
+    phone: '(11) 98877-6655',
+    cardLast4: '3321',
+    paymentMethod: 'Cartão de Crédito (Elo)',
+    history: [
+      { id: 401, date: '22/06/2026', amount: 89.90, status: 'Pago' },
+      { id: 402, date: '22/05/2026', amount: 89.90, status: 'Pago' },
+      { id: 403, date: '22/04/2026', amount: 89.90, status: 'Pago' }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Gabriel Costa',
+    initials: 'GC',
+    planName: 'Corte + Barba Mensal',
+    planPrice: 129.90,
+    status: 'Falha no pagamento',
+    nextBilling: '15/06/2026',
+    email: 'gabriel.costa@email.com',
+    phone: '(11) 98111-2233',
+    cardLast4: '5543',
+    paymentMethod: 'Cartão de Crédito (Visa)',
+    failureReason: 'Cartão recusado em 15/06',
+    history: [
+      { id: 501, date: '15/06/2026', amount: 129.90, status: 'Recusado' },
+      { id: 502, date: '15/05/2026', amount: 129.90, status: 'Pago' },
+      { id: 503, date: '15/04/2026', amount: 129.90, status: 'Pago' }
+    ]
+  },
+  {
+    id: 6,
+    name: 'Thiago Silva',
+    initials: 'TS',
+    planName: 'Corte Ilimitado',
+    planPrice: 89.90,
+    status: 'Falha no pagamento',
+    nextBilling: '22/06/2026',
+    email: 'thiago.silva@email.com',
+    phone: '(11) 98222-3344',
+    cardLast4: '1288',
+    paymentMethod: 'Cartão de Crédito (Mastercard)',
+    failureReason: 'Saldo insuficiente em 22/06',
+    history: [
+      { id: 601, date: '22/06/2026', amount: 89.90, status: 'Recusado' },
+      { id: 602, date: '22/05/2026', amount: 89.90, status: 'Pago' },
+      { id: 603, date: '22/04/2026', amount: 89.90, status: 'Pago' }
+    ]
+  },
+  {
+    id: 7,
+    name: 'Carlos Antunes',
+    initials: 'CA',
+    planName: 'Corte Ilimitado',
+    planPrice: 89.90,
+    status: 'Cancelada',
+    nextBilling: '18/06/2026',
+    email: 'carlos.ant@email.com',
+    phone: '(11) 98333-4455',
+    cardLast4: '8821',
+    paymentMethod: 'Cartão de Crédito (Mastercard)',
+    cancellationReason: 'Cancelada pelo cliente',
+    cancellationDate: '18/06/2026',
+    history: [
+      { id: 701, date: '20/05/2026', amount: 89.90, status: 'Pago' },
+      { id: 702, date: '20/04/2026', amount: 89.90, status: 'Pago' }
+    ]
+  },
+  {
+    id: 8,
+    name: 'Juliana Rocha',
+    initials: 'JR',
+    planName: 'Corte + Barba Mensal',
+    planPrice: 129.90,
+    status: 'Cancelada',
+    nextBilling: '12/06/2026',
+    email: 'juliana.rocha@email.com',
+    phone: '(11) 98444-5566',
+    cardLast4: '4456',
+    paymentMethod: 'Cartão de Crédito (Visa)',
+    cancellationReason: 'Cancelada pelo sistema após 3 tentativas de cobrança',
+    cancellationDate: '12/06/2026',
+    history: [
+      { id: 801, date: '12/06/2026', amount: 129.90, status: 'Falhou' },
+      { id: 802, date: '10/06/2026', amount: 129.90, status: 'Falhou' },
+      { id: 803, date: '08/06/2026', amount: 129.90, status: 'Falhou' }
+    ]
+  },
+  {
+    id: 9,
+    name: 'Felipe Costa',
+    initials: 'FC',
+    planName: 'VIP Ilimitado',
+    planPrice: 179.90,
+    status: 'Pendente',
+    nextBilling: '01/07/2026',
+    email: 'felipe.costa@email.com',
+    phone: '(11) 98555-6677',
+    cardLast4: '2323',
+    paymentMethod: 'Cartão de Crédito (Elo)',
+    history: []
   }
-};
+];
 
 export const dailyProfessionals = [
   { id: 'gustavo', name: 'Gustavo', occupancy: 80, specialty: 'Barba & Design', initials: 'GU' },

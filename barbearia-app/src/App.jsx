@@ -12,22 +12,40 @@ import {
   initialAppointments, 
   initialInventory, 
   dailyRevenue, 
-  subscriptionClients 
+  subscriptionClients,
+  professionals as initialProfessionals
 } from './data/mockData';
+
+import ClientLayout from './components/client/ClientLayout';
 
 // Custom CSS styles inside App are cleared, using index.css
 import './App.css';
 
 export default function App() {
   // Lift state up to synchronize updates across different views in real-time
+  const [viewRole, setViewRole] = useState('admin'); // 'admin' or 'client'
   const [appointments, setAppointments] = useState(initialAppointments);
   const [inventory, setInventory] = useState(initialInventory);
   const [subClients, setSubClients] = useState(subscriptionClients);
   const [dailyRevData, setDailyRevData] = useState(dailyRevenue);
+  const [professionals, setProfessionals] = useState(initialProfessionals);
+
+  if (viewRole === 'client') {
+    return (
+      <ClientLayout
+        viewRole={viewRole}
+        setViewRole={setViewRole}
+        subClients={subClients}
+        setSubClients={setSubClients}
+        appointments={appointments}
+        setAppointments={setAppointments}
+      />
+    );
+  }
 
   return (
     <Router>
-      <Layout>
+      <Layout viewRole={viewRole} setViewRole={setViewRole}>
         <Routes>
           <Route 
             path="/" 
@@ -36,6 +54,7 @@ export default function App() {
                 appointments={appointments} 
                 inventory={inventory} 
                 dailyRevData={dailyRevData} 
+                professionals={professionals}
               />
             } 
           />
@@ -45,6 +64,7 @@ export default function App() {
               <Agendamentos 
                 appointments={appointments} 
                 setAppointments={setAppointments} 
+                professionals={professionals}
               />
             } 
           />
@@ -53,6 +73,9 @@ export default function App() {
             element={
               <Funcionarios 
                 appointments={appointments} 
+                setAppointments={setAppointments}
+                professionals={professionals}
+                setProfessionals={setProfessionals}
               />
             } 
           />

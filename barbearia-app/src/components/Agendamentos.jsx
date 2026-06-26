@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { services, professionals } from '../data/mockData';
+import { services } from '../data/mockData';
 import BaixaPagamento from './BaixaPagamento';
 import AgendaCalendario from './AgendaCalendario';
 import AgendaTabela from './AgendaTabela';
@@ -73,9 +73,20 @@ function CustomDropdown({ label, options, value, onChange }) {
   );
 }
 
-export default function Agendamentos({ appointments, setAppointments }) {
+export default function Agendamentos({ appointments, setAppointments, professionals }) {
   const [agendaMode, setAgendaMode] = useState('calendario'); // 'agenda' | 'calendario' (default is 'calendario')
   const [selectedProf, setSelectedProf] = useState('all'); // 'all', 'nicolas', 'gustavo'
+
+  useEffect(() => {
+    if (selectedProf !== 'all') {
+      const exists = professionals.some(p => p.id === selectedProf);
+      if (!exists) {
+        setSelectedProf(agendaMode === 'agenda' ? (professionals[0]?.id || '') : 'all');
+      }
+    } else if (agendaMode === 'agenda' && selectedProf === 'all') {
+      setSelectedProf(professionals[0]?.id || '');
+    }
+  }, [professionals, selectedProf, agendaMode]);
   
   // Modals state
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -88,7 +99,7 @@ export default function Agendamentos({ appointments, setAppointments }) {
   const [bookDetails, setBookDetails] = useState({
     clientName: '',
     serviceId: 'corte',
-    professionalId: 'nicolas',
+    professionalId: professionals[0]?.id || '',
     time: '08:00',
     date: ''
   });
@@ -176,13 +187,23 @@ export default function Agendamentos({ appointments, setAppointments }) {
     Agendado: 'bg-blue-500/10 border-blue-500/30 text-blue-400 card-premium',
     Confirmado: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 card-premium',
     Concluído: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 card-premium',
-    Cancelado: 'bg-red-500/10 border-red-500/30 text-red-500 opacity-60 card-premium'
+    Cancelado: 'bg-red-500/10 border-red-500/30 text-red-500 opacity-60 card-premium',
+    'Não Compareceu': 'bg-rose-500/10 border-rose-500/30 text-rose-400 opacity-75 card-premium'
   };
 
   // Handle payment confirmation
   const handlePaymentConfirm = (id, method, fee, net) => {
     setAppointments(prev => prev.map(app => {
       if (app.id === id) {
+        if (method === 'Não Compareceu') {
+          return {
+            ...app,
+            status: 'Não Compareceu',
+            paymentMethod: null,
+            fee: 0,
+            netAmount: 0
+          };
+        }
         return {
           ...app,
           status: 'Concluído',
@@ -200,7 +221,8 @@ export default function Agendamentos({ appointments, setAppointments }) {
     let nextStatus = 'Agendado';
     if (currentStatus === 'Agendado') nextStatus = 'Confirmado';
     else if (currentStatus === 'Confirmado') nextStatus = 'Cancelado';
-    else if (currentStatus === 'Cancelado') nextStatus = 'Agendado';
+    else if (currentStatus === 'Cancelado') nextStatus = 'Não Compareceu';
+    else if (currentStatus === 'Não Compareceu') nextStatus = 'Agendado';
 
     setAppointments(prev => prev.map(app => {
       if (app.id === id) {
@@ -215,7 +237,7 @@ export default function Agendamentos({ appointments, setAppointments }) {
     setBookDetails({
       clientName: '',
       serviceId: 'corte',
-      professionalId: profId || 'nicolas',
+      professionalId: profId || professionals[0]?.id || '',
       time: time,
       date: dateVal || activeDate
     });
@@ -312,6 +334,7 @@ export default function Agendamentos({ appointments, setAppointments }) {
                   ? professionals.map((prof) => {
                       let colorClass = 'bg-sky-500';
                       if (prof.id === 'gustavo') colorClass = 'bg-gold-400';
+                      else if (prof.id !== 'nicolas') colorClass = 'bg-amber-500';
                       return { id: prof.id, label: prof.name, colorClass };
                     })
                   : [
@@ -319,6 +342,7 @@ export default function Agendamentos({ appointments, setAppointments }) {
                       ...professionals.map((prof) => {
                         let colorClass = 'bg-sky-500';
                         if (prof.id === 'gustavo') colorClass = 'bg-gold-400';
+                        else if (prof.id !== 'nicolas') colorClass = 'bg-amber-500';
                         return { id: prof.id, label: prof.name, colorClass };
                       })
                     ]
@@ -376,19 +400,19 @@ export default function Agendamentos({ appointments, setAppointments }) {
 
       {/* MODAL 2: Booking Form Modal */}
       {isBookRender && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div 
             className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
               isBookExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
             }`} 
             onClick={() => setIsBookOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-2xl shadow-2xl relative z-10 overflow-hidden ${
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
             isBookExiting ? 'animate-modal-out' : 'animate-modal-in'
           }`}>
-            <form onSubmit={handleBookConfirm}>
+            <form onSubmit={handleBookConfirm} className="flex flex-col max-h-[90vh]">
               
-              <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20">
+              <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
                 <div>
                   <h3 className="text-lg font-bold text-white">Agendar Novo Cliente</h3>
                   <p className="text-xs text-gray-400 mt-1">Preencha os dados do agendamento.</p>
@@ -396,13 +420,13 @@ export default function Agendamentos({ appointments, setAppointments }) {
                 <button 
                   type="button" 
                   onClick={() => setIsBookOpen(false)}
-                  className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer"
+                  className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 
                 {/* Client Name Input */}
                 <div className="flex flex-col-reverse gap-1.5">
@@ -442,7 +466,7 @@ export default function Agendamentos({ appointments, setAppointments }) {
                     className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer cursor-pointer"
                   >
                     {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} - R$ {s.price} ({s.duration}min)</option>
+                      <option key={s.id} value={s.id}>{s.name} - R$${s.price.toFixed(2).replace('.', ',')} ({s.duration}min)</option>
                     ))}
                   </select>
                   <label htmlFor="serviceSelect" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Serviço</label>
@@ -480,17 +504,17 @@ export default function Agendamentos({ appointments, setAppointments }) {
 
               </div>
 
-              <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3">
+              <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsBookOpen(false)}
-                  className="flex-1 py-3 px-4 rounded-xl border border-border-dark text-sm font-semibold text-gray-400 btn-secondary cursor-pointer hover:bg-white/5 transition-colors"
+                  className="flex-1 py-3 px-4 rounded-xl border border-border-dark text-xs font-bold text-gray-400 btn-secondary cursor-pointer hover:bg-white/5 transition-colors h-11"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-sm font-bold btn-primary cursor-pointer hover:bg-gold-500 transition-colors"
+                  className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-xs font-bold btn-primary cursor-pointer hover:bg-gold-500 transition-colors h-11"
                 >
                   Criar Agendamento
                 </button>

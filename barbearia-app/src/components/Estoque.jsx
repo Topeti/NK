@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Package, 
   Search, 
@@ -18,6 +18,86 @@ export default function Estoque({ inventory, setInventory }) {
   
   // Local state for stock inputs
   const [addQtyInputs, setAddQtyInputs] = useState({}); // itemId -> number string
+
+  // Add Product Modal State
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isAddRender, setIsAddRender] = useState(false);
+  const [isAddExiting, setIsAddExiting] = useState(false);
+  
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    category: 'Produtos',
+    currentQuantity: 0,
+    minimumQuantity: 5
+  });
+
+  // Remove Product Modal State
+  const [productToRemove, setProductToRemove] = useState(null);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [isRemoveRender, setIsRemoveRender] = useState(false);
+  const [isRemoveExiting, setIsRemoveExiting] = useState(false);
+
+  // Handle Add Modal open/close animation
+  useEffect(() => {
+    if (isAddOpen) {
+      setIsAddRender(true);
+      setIsAddExiting(false);
+    } else if (isAddRender) {
+      setIsAddExiting(true);
+      const timer = setTimeout(() => {
+        setIsAddRender(false);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isAddOpen, isAddRender]);
+
+  // Handle Remove Modal open/close animation
+  useEffect(() => {
+    if (isRemoveOpen) {
+      setIsRemoveRender(true);
+      setIsRemoveExiting(false);
+    } else if (isRemoveRender) {
+      setIsRemoveExiting(true);
+      const timer = setTimeout(() => {
+        setIsRemoveRender(false);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isRemoveOpen, isRemoveRender]);
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    if (!newProduct.name.trim()) return;
+
+    const createdItem = {
+      id: Date.now(),
+      name: newProduct.name.trim(),
+      category: newProduct.category,
+      currentQuantity: Number(newProduct.currentQuantity) || 0,
+      minimumQuantity: Number(newProduct.minimumQuantity) || 0
+    };
+
+    setInventory(prev => [...prev, createdItem]);
+    setNewProduct({
+      name: '',
+      category: 'Produtos',
+      currentQuantity: 0,
+      minimumQuantity: 5
+    });
+    setIsAddOpen(false);
+  };
+
+  const handleInitiateRemove = (item) => {
+    setProductToRemove(item);
+    setIsRemoveOpen(true);
+  };
+
+  const handleRemoveConfirm = () => {
+    if (!productToRemove) return;
+    setInventory(prev => prev.filter(item => item.id !== productToRemove.id));
+    setIsRemoveOpen(false);
+    setProductToRemove(null);
+  };
 
   const getStockStatus = (current, min) => {
     if (current < min) return 'red';
@@ -72,10 +152,22 @@ export default function Estoque({ inventory, setInventory }) {
           <h2 className="text-lg md:text-xl font-black text-white uppercase tracking-wider select-none">
             Estoque
           </h2>
-          <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
             Controle de produtos, consumíveis e equipamentos
           </p>
         </div>
+        
+        {/* Add Product Button */}
+        <button
+          type="button"
+          onClick={() => setIsAddOpen(true)}
+          className="bg-gold-400 text-black px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 btn-primary self-start md:self-auto cursor-pointer"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+          Novo Produto
+        </button>
       </div>
 
       {/* Search and Filters Bar */}
@@ -158,15 +250,29 @@ export default function Estoque({ inventory, setInventory }) {
             >
               <div>
                 {/* Header Card */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[9px] uppercase font-bold text-gray-500 tracking-wider">
+                <div className="flex justify-between items-center mb-2 gap-2">
+                  <span className="text-xs uppercase font-bold text-gray-500 tracking-wider truncate">
                     {item.category}
                   </span>
                   
-                  {/* Status Indicator Badge */}
-                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase border ${statusInfo.textClass}`}>
-                    {statusInfo.label}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Status Indicator Badge */}
+                    <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full uppercase border shrink-0 ${statusInfo.textClass}`}>
+                      {statusInfo.label}
+                    </span>
+                    
+                    {/* Premium Delete Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleInitiateRemove(item)}
+                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-inner shrink-0"
+                      title="Excluir Produto"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Product Name */}
@@ -202,23 +308,23 @@ export default function Estoque({ inventory, setInventory }) {
               </div>
 
               {/* Restock Form */}
-              <div className="mt-5 pt-3 border-t border-border-dark flex gap-2">
+              <div className="mt-5 pt-3 border-t border-border-dark flex flex-row flex-nowrap gap-2 items-center">
                 <input
                   type="number"
                   min="1"
                   placeholder="Qtd"
                   value={inputVal}
                   onChange={(e) => setAddQtyInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
-                  className="w-16 bg-black/40 border border-border-dark rounded-lg px-2 py-1.5 text-xs text-center text-white input-premium placeholder-gray-600"
+                  className="w-16 h-10 bg-black/40 border border-border-dark rounded-xl px-2 text-xs text-center text-white input-premium placeholder-gray-600 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddStock(item.id)}
                   disabled={!inputVal || parseInt(inputVal) <= 0}
-                  className="flex-1 bg-gold-400/10 text-gold-400 border border-gold-400/20 text-xs font-bold py-1.5 rounded-lg flex items-center justify-center gap-1.5 btn-secondary disabled:opacity-40 disabled:pointer-events-none"
+                  className="flex-1 h-10 bg-gold-400/10 text-gold-400 border border-gold-400/20 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 btn-secondary disabled:opacity-40 disabled:pointer-events-none transition-all duration-200 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Registrar Entrada</span>
+                  <Plus className="w-3.5 h-3.5 whitespace-nowrap shrink-0" />
+                  <span className="whitespace-nowrap">Registrar Entrada</span>
                 </button>
               </div>
 
@@ -231,6 +337,186 @@ export default function Estoque({ inventory, setInventory }) {
         <div className="text-center py-12 bg-card-bg border border-border-dark rounded-2xl">
           <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
           <p className="text-sm font-semibold text-gray-400">Nenhum item encontrado com os filtros selecionados.</p>
+        </div>
+      )}
+
+      {/* MODAL: Novo Produto */}
+      {isAddRender && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div 
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
+              isAddExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+            }`} 
+            onClick={() => setIsAddOpen(false)}
+          ></div>
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
+            isAddExiting ? 'animate-modal-out' : 'animate-modal-in'
+          }`}>
+            <form onSubmit={handleAddProduct} className="flex flex-col max-h-[90vh]">
+              
+              <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
+                <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-wider">Novo Item no Estoque</h3>
+                  <p className="text-xs text-gray-400 mt-1">Registre um novo produto, descarte ou equipamento.</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setIsAddOpen(false)}
+                  className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
+                
+                {/* Product Name Input */}
+                <div className="flex flex-col-reverse gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    id="prodName"
+                    placeholder="Ex: Cera Modeladora Strong"
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                  />
+                  <label htmlFor="prodName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Item</label>
+                </div>
+
+                {/* Category Select */}
+                <div className="flex flex-col-reverse gap-1.5">
+                  <select
+                    id="prodCategory"
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer cursor-pointer"
+                  >
+                    <option value="Produtos">Produtos</option>
+                    <option value="Descartáveis">Descartáveis</option>
+                    <option value="Equipamentos">Equipamentos</option>
+                  </select>
+                  <label htmlFor="prodCategory" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Categoria</label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Current Quantity Input */}
+                  <div className="flex flex-col-reverse gap-1.5">
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      id="prodQty"
+                      placeholder="Ex: 10"
+                      value={newProduct.currentQuantity}
+                      onChange={(e) => setNewProduct(prev => ({ ...prev, currentQuantity: e.target.value }))}
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                    />
+                    <label htmlFor="prodQty" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Inicial</label>
+                  </div>
+
+                  {/* Minimum Quantity Input */}
+                  <div className="flex flex-col-reverse gap-1.5">
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      id="prodMin"
+                      placeholder="Ex: 5"
+                      value={newProduct.minimumQuantity}
+                      onChange={(e) => setNewProduct(prev => ({ ...prev, minimumQuantity: e.target.value }))}
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                    />
+                    <label htmlFor="prodMin" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Mínimo</label>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAddOpen(false)}
+                  className="flex-1 py-3 px-4 rounded-xl border border-border-dark text-xs font-bold text-gray-400 btn-secondary cursor-pointer hover:bg-white/5 transition-colors h-11"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-xs font-bold btn-primary cursor-pointer hover:bg-gold-500 transition-colors h-11"
+                >
+                  Confirmar
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Excluir Produto (Confirmação) */}
+      {isRemoveRender && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div 
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
+              isRemoveExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+            }`} 
+            onClick={() => setIsRemoveOpen(false)}
+          ></div>
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
+            isRemoveExiting ? 'animate-modal-out' : 'animate-modal-in'
+          }`}>
+            
+            <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-wider text-left">Remover do Estoque</h3>
+                  <p className="text-xs text-gray-400 mt-1 text-left">Excluir item do catálogo.</p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setIsRemoveOpen(false)}
+                className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1 text-left">
+              <p className="text-sm text-gray-300">
+                Tem certeza que deseja excluir o item <strong>{productToRemove?.name}</strong> do estoque?
+              </p>
+              <p className="text-xs text-gray-500 leading-normal">
+                Esta ação removerá permanentemente o produto do seu inventário e dos relatórios de alertas críticos de reposição.
+              </p>
+            </div>
+
+            <div className="p-6 border-t border-border-dark bg-black/20 flex gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsRemoveOpen(false)}
+                className="flex-1 py-3 px-4 rounded-xl border border-border-dark text-xs font-bold text-gray-400 btn-secondary cursor-pointer hover:bg-white/5 transition-colors h-11"
+              >
+                Manter Item
+              </button>
+              <button
+                type="button"
+                onClick={handleRemoveConfirm}
+                className="flex-1 py-3 px-4 rounded-xl bg-red-600 text-white text-xs font-bold btn-danger cursor-pointer hover:bg-red-700 transition-colors h-11"
+              >
+                Excluir Definitivamente
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
 

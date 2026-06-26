@@ -1,33 +1,35 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { 
   Scissors, 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  Package, 
-  CreditCard,
-  User
+  User, 
+  ChevronDown,
+  Calendar,
+  CreditCard
 } from 'lucide-react';
+import ClientAgendar from './ClientAgendar';
+import ClientAssinatura from './ClientAssinatura';
 
-export default function Layout({ children, viewRole, setViewRole }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [showRoleDropdown, setShowRoleDropdown] = React.useState(false);
+export default function ClientLayout({ 
+  viewRole, 
+  setViewRole, 
+  subClients, 
+  setSubClients, 
+  appointments, 
+  setAppointments 
+}) {
+  const [activeTab, setActiveTab] = useState('agendar'); // 'agendar' or 'assinatura'
+  const [planState, setPlanState] = useState('B'); // 'A' (no plan), 'B' (active plan), 'C' (payment failure)
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   const menuItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Agendamentos', path: '/agendamentos', icon: Calendar },
-    { name: 'Funcionários', path: '/funcionarios', icon: Users },
-    { name: 'Estoque', path: '/estoque', icon: Package },
-    { name: 'Assinatura', path: '/assinatura', icon: CreditCard },
+    { id: 'agendar', name: 'Agendar', icon: Calendar },
+    { id: 'assinatura', name: 'Minha Assinatura', icon: CreditCard },
   ];
-
-  const currentPath = location.pathname;
 
   return (
     <div className="min-h-screen bg-dark-bg text-gray-100 flex flex-col md:flex-row">
-      {/* DESKTOP SIDEBAR */}
+      
+      {/* DESKTOP CLIENT SIDEBAR - Expands on hover like Admin sidebar */}
       <aside className="hidden md:flex flex-col w-16 hover:w-[220px] bg-card-bg border-r border-border-dark fixed h-full z-40 group sidebar-transition">
         {/* Brand/Logo */}
         <div className="p-4 pl-[13px] border-b border-border-dark flex items-center gap-0 h-[73px] overflow-hidden">
@@ -36,7 +38,7 @@ export default function Layout({ children, viewRole, setViewRole }) {
           </div>
           <div className="overflow-hidden whitespace-nowrap sidebar-label shrink-0">
             <h1 className="font-bold text-sm tracking-wider text-white">CORLEONE</h1>
-            <p className="text-xs text-gold-400 font-semibold tracking-widest uppercase">Barber Manager</p>
+            <p className="text-xs text-gold-400 font-semibold tracking-widest uppercase">Club & Booking</p>
           </div>
         </div>
 
@@ -44,11 +46,11 @@ export default function Layout({ children, viewRole, setViewRole }) {
         <nav className="flex-1 px-2 py-6 space-y-2 overflow-x-hidden">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPath === item.path;
+            const isActive = activeTab === item.id;
             return (
               <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center h-12 px-2 rounded-xl text-sm font-medium transition-all duration-300 cursor-pointer ${
                   isActive 
                     ? 'bg-gold-400/10 text-gold-400 border border-gold-400/20 border-l-2 border-l-gold-400 shadow-[0_0_15px_rgba(212,168,67,0.05)]' 
@@ -66,31 +68,25 @@ export default function Layout({ children, viewRole, setViewRole }) {
           })}
         </nav>
 
-        {/* User Profile Summary & Role Switcher */}
+        {/* Client Profile Summary with Switcher Popover */}
         <div className="relative">
           {showRoleDropdown && (
             <div className="absolute bottom-[70px] left-2 right-2 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
               <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
               <button 
                 type="button"
-                onClick={() => {
-                  setViewRole('admin');
-                  setShowRoleDropdown(false);
-                }}
-                className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+                onClick={() => setViewRole('admin')}
+                className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
               >
                 <span>Administrador</span>
-                <span>✓</span>
               </button>
               <button 
                 type="button"
-                onClick={() => {
-                  setViewRole('client');
-                  setShowRoleDropdown(false);
-                }}
-                className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                onClick={() => setShowRoleDropdown(false)}
+                className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
               >
-                <span>Cliente (Simulador)</span>
+                <span>Cliente</span>
+                <span>✓</span>
               </button>
             </div>
           )}
@@ -102,49 +98,46 @@ export default function Layout({ children, viewRole, setViewRole }) {
               <User className="w-5 h-5" />
             </div>
             <div className="overflow-hidden whitespace-nowrap sidebar-label shrink-0">
-              <p className="text-xs font-semibold text-white leading-tight">Administrador</p>
-              <p className="text-xs text-gray-500">Unidade Jardins</p>
+              <p className="text-xs font-semibold text-white leading-tight">João Silva</p>
+              <p className="text-xs text-gold-400 font-medium">Cliente</p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* MOBILE BOTTOM NAVIGATION */}
+      {/* MOBILE CLIENT BOTTOM NAVIGATION */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card-bg/95 backdrop-blur-md border-t border-border-dark z-50 px-2 py-2 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
         {showRoleDropdown && (
-            <div className="absolute bottom-[65px] right-4 w-44 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
-              <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
+          <div className="absolute bottom-[65px] left-4 right-4 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
+            <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
             <button 
               type="button"
               onClick={() => {
                 setViewRole('admin');
                 setShowRoleDropdown(false);
               }}
-              className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+              className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
             >
               <span>Administrador</span>
-              <span>✓</span>
             </button>
             <button 
               type="button"
-              onClick={() => {
-                setViewRole('client');
-                setShowRoleDropdown(false);
-              }}
-              className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+              onClick={() => setShowRoleDropdown(false)}
+              className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
             >
-              <span>Cliente (Simulador)</span>
+              <span>Cliente</span>
+              <span>✓</span>
             </button>
           </div>
         )}
         <div className="flex justify-around items-center">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPath === item.path;
+            const isActive = activeTab === item.id;
             return (
               <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
                 className={`flex flex-col items-center justify-center gap-1 h-12 px-3 rounded-lg transition-all duration-200 active:scale-95 ${
                   isActive ? 'text-gold-400' : 'text-gray-400'
                 }`}
@@ -168,13 +161,28 @@ export default function Layout({ children, viewRole, setViewRole }) {
         </div>
       </nav>
 
-      {/* MAIN CONTENT CONTAINER */}
+      {/* CLIENT MAIN CONTENT CONTAINER */}
       <main className="flex-1 flex flex-col md:pl-16 min-h-screen pb-20 md:pb-0">
-        {/* Page Content wrapper */}
         <div className="flex-1 p-4 md:p-8 animate-[fadeIn_0.3s_ease-out]">
-          {children}
+          {activeTab === 'agendar' && (
+            <ClientAgendar 
+              appointments={appointments}
+              setAppointments={setAppointments}
+              planState={planState}
+            />
+          )}
+
+          {activeTab === 'assinatura' && (
+            <ClientAssinatura 
+              subClients={subClients}
+              setSubClients={setSubClients}
+              planState={planState}
+              setPlanState={setPlanState}
+            />
+          )}
         </div>
       </main>
+
     </div>
   );
 }

@@ -20,7 +20,6 @@ import {
 } from 'recharts';
 import { 
   getWeekDates,
-  dailyProfessionals,
   monthlyRevenueData,
   monthlyRevenueStats,
   monthlyAppointmentsStats
@@ -31,7 +30,7 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
-export default function Dashboard({ appointments, inventory, dailyRevData }) {
+export default function Dashboard({ appointments, inventory, dailyRevData, professionals }) {
   const chartContainerRef = useRef(null);
   const [viewMode, setViewMode] = useState('diario');
 
@@ -70,11 +69,24 @@ export default function Dashboard({ appointments, inventory, dailyRevData }) {
   const monthlyTotalCount = monthlyAppointmentsStats.totalBase + appointments.length;
   const monthlyCompletedCount = monthlyAppointmentsStats.completedBase + appointments.filter(app => app.status === 'Concluído').length;
 
-  // 3. Fixed average occupancy (represents always the monthly average of 72.5% calculated from daily baseline)
-  const averageOccupancy = dailyProfessionals.reduce((sum, p) => sum + p.occupancy, 0) / dailyProfessionals.length;
+  // 3. Dynamic team occupancy calculated based on active appointment hours
+  const profOccupancy = professionals.map(prof => {
+    const profApps = appointments.filter(app => app.professionalId === prof.id && app.status !== 'Cancelado');
+    const totalMinutes = profApps.reduce((sum, app) => sum + app.duration, 0);
+    
+    // Calibrated capacities to match baseline (Nicolas: ~65% at 220m, Gustavo: ~80% at 210m, default: 300m)
+    const capacity = prof.id === 'nicolas' ? 338 : prof.id === 'gustavo' ? 262 : 300;
+    const occupancy = Math.min(100, Math.round((totalMinutes / capacity) * 100));
+    
+    return {
+      ...prof,
+      occupancy
+    };
+  });
 
-  // 4. Team Occupancy (fixed to always show monthly baseline values of 80% Gustavo and 65% Nicolas)
-  const profOccupancy = dailyProfessionals;
+  const averageOccupancy = profOccupancy.length > 0
+    ? profOccupancy.reduce((sum, p) => sum + p.occupancy, 0) / profOccupancy.length
+    : 0;
 
   // 5. Chart Data
   const dailyChartData = dailyRevData.map(dayItem => {
@@ -111,7 +123,7 @@ export default function Dashboard({ appointments, inventory, dailyRevData }) {
           <h2 className="text-lg md:text-xl font-black text-white uppercase tracking-wider select-none">
             Dashboard
           </h2>
-          <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5 select-none">
             Gerenciamento em tempo real do seu negócio
           </p>
         </div>
@@ -144,7 +156,7 @@ export default function Dashboard({ appointments, inventory, dailyRevData }) {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
         
         {/* Card 1: Revenue Card */}
         <div className="bg-card-bg border border-border-dark p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
@@ -316,18 +328,18 @@ export default function Dashboard({ appointments, inventory, dailyRevData }) {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-white">{prof.name}</p>
-                          <p className="text-[10px] text-gray-400">{prof.specialty}</p>
+                          <p className="text-xs text-gray-400">{prof.specialty}</p>
                         </div>
                       </div>
                       
                       {/* Badge indicator */}
                       <div>
                         {isOverThreshold ? (
-                          <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-500">
+                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-500">
                             <AlertTriangle className="w-3 h-3" /> Contratar
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-500">
+                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-500">
                             <CheckCircle className="w-3 h-3" /> Saudável
                           </span>
                         )}
@@ -364,7 +376,7 @@ export default function Dashboard({ appointments, inventory, dailyRevData }) {
             <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5 animate-pulse" />
             <div>
               <p className="text-xs font-bold text-white">Alerta de Recursos Humanos</p>
-              <p className="text-[10px] text-gray-400 mt-1 leading-normal">
+              <p className="text-xs text-gray-400 mt-1 leading-normal">
                 O profissional <strong>Gustavo</strong> superou o limite recomendado de 75% de ocupação. Recomendamos abrir vagas de contratação para novos barbeiros.
               </p>
             </div>
