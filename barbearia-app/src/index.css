@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-gold-50: #fbf7ec;
+  --color-gold-100: #f4ecce;
+  --color-gold-200: #e9d79c;
+  --color-gold-300: #dbbd62;
+  --color-gold-400: #d4a843;
+  --color-gold-500: #c59333;
+  --color-gold-600: #a77427;
+  --color-gold-700: #835421;
+  --color-gold-800: #6a431f;
+  --color-gold-900: #5c381d;
+  
+  --color-dark-bg: #0d0d0d;
+  --color-card-bg: #1a1a1a;
+  --color-border-dark: #2a2a2a;
+}
+
+@layer base {
+  body {
+    background-color: #0d0d0d;
+    color: #ffffff;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4a843;
+}
