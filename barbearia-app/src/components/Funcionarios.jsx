@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  Percent, 
-  FileText, 
-  Wallet, 
+import {
+  Users,
+  DollarSign,
+  TrendingUp,
+  Percent,
+  FileText,
+  Wallet,
   CheckCircle,
   CreditCard,
   QrCode,
@@ -23,7 +23,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isAddRender, setIsAddRender] = useState(false);
   const [isAddExiting, setIsAddExiting] = useState(false);
-  
+
   const [newProf, setNewProf] = useState({
     name: ''
   });
@@ -68,8 +68,8 @@ export default function Funcionarios({ appointments, setAppointments, profession
 
     // Auto-generate initials from full name
     const parts = newProf.name.trim().split(/\s+/);
-    const initials = parts.length > 1 
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() 
+    const initials = parts.length > 1
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
       : parts[0].substring(0, 2).toUpperCase();
 
     const createdProf = {
@@ -116,7 +116,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
   // Compute dynamic stats for each professional
   const getProfStats = (profId) => {
     const profApps = appointments.filter(app => app.professionalId === profId && app.status === 'Concluído');
-    
+
     const totalCompleted = profApps.length;
     const grossRevenue = profApps.reduce((sum, app) => sum + app.price, 0);
     const commissionBase = profApps.reduce((sum, app) => sum + app.netAmount, 0);
@@ -168,7 +168,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
             Comissão, produção e fechamento de folha de pagamento
           </p>
         </div>
-        
+
         {/* Add Employee Button */}
         <button
           type="button"
@@ -191,7 +191,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
 
           return (
             <div key={prof.id} className="bg-card-bg border border-border-dark p-6 rounded-2xl flex flex-col justify-between card-premium">
-              
+
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 sm:gap-2">
                 <div className="flex items-center gap-3 min-w-0">
@@ -204,16 +204,15 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 self-end sm:self-start">
-                  <span className={`text-[10px] sm:text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border ${
-                    isPaid 
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                  <span className={`text-[10px] sm:text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border ${isPaid
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                       : isDraft
-                      ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500'
-                      : 'bg-white/5 border-white/10 text-gray-400'
-                  }`}>
+                        ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500'
+                        : 'bg-white/5 border-white/10 text-gray-400'
+                    }`}>
                     {isPaid ? 'Folha Paga' : isDraft ? 'Folha Gerada' : 'Aguardando Fechamento'}
                   </span>
-                  
+
                   {/* Premium Remove Button */}
                   <button
                     type="button"
@@ -230,29 +229,29 @@ export default function Funcionarios({ appointments, setAppointments, profession
 
               {/* Stats Matrix */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6">
-                
+
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl">
                   <p className="text-xs text-gray-500 uppercase font-bold">Concluídos</p>
                   <p className="text-lg font-bold text-white mt-1">{stats.totalCompleted}</p>
                 </div>
-                
+
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl">
                   <p className="text-xs text-gray-500 uppercase font-bold">Fatur. Bruto</p>
                   <p className="text-lg font-bold text-white mt-1">R$ {stats.grossRevenue.toFixed(2).replace('.', ',')}</p>
                 </div>
- 
+
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl" title="Base de comissão = receita líquida após taxas de cartão">
                   <p className="text-xs text-gray-500 uppercase font-bold">Base Comis.</p>
                   <p className="text-lg font-bold text-gold-400 mt-1">R$ {stats.commissionBase.toFixed(2).replace('.', ',')}</p>
                 </div>
- 
+
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl" title="Comissão de 50% sobre o faturamento líquido">
                   <p className="text-xs text-gray-500 uppercase font-bold">Comissão (50%)</p>
                   <p className="text-lg font-extrabold text-gold-400 mt-1">R$ {stats.commission.toFixed(2).replace('.', ',')}</p>
                 </div>
- 
+
               </div>
- 
+
               {/* Payment Methods Breakdown */}
               <div className="border-t border-border-dark/60 pt-4 space-y-3">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Detalhamento de Recebíveis</p>
@@ -279,7 +278,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                     </div>
                   </div>
                 </div>
-                
+
                 {stats.cardFees > 0 && (
                   <p className="text-xs text-red-400 font-semibold mt-1">
                     * Taxas de cartão deduzidas: R$ {stats.cardFees.toFixed(2).replace('.', ',')}
@@ -291,11 +290,10 @@ export default function Funcionarios({ appointments, setAppointments, profession
               <button
                 type="button"
                 onClick={() => handleGeneratePayroll(prof.id)}
-                className={`mt-6 w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border ${
-                  selectedProf === prof.id
+                className={`mt-6 w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border ${selectedProf === prof.id
                     ? 'bg-gold-400 text-black border-gold-400 btn-primary'
                     : 'bg-black/40 text-gold-400 border-gold-400/20 btn-secondary'
-                }`}
+                  }`}
               >
                 <FileText className="w-4 h-4" />
                 {isPaid ? 'Ver Recibo' : isDraft ? 'Ver Folha' : 'Gerar Folha'}
@@ -314,13 +312,13 @@ export default function Funcionarios({ appointments, setAppointments, profession
 
         return (
           <div className="bg-card-bg border border-border-dark rounded-2xl overflow-hidden max-w-2xl mx-auto shadow-2xl animate-modal-in">
-            
+
             {/* Ticket Header */}
             <div className="p-6 bg-black/40 border-b border-border-dark flex justify-between items-center relative">
               {/* Decorative side ticket notches */}
               <div className="absolute -bottom-3 -left-3 w-6 h-6 rounded-full bg-dark-bg border-r border-border-dark"></div>
               <div className="absolute -bottom-3 -right-3 w-6 h-6 rounded-full bg-dark-bg border-l border-border-dark"></div>
-              
+
               <div className="flex items-center gap-3">
                 <Receipt className="w-6 h-6 text-gold-400" />
                 <div>
@@ -349,9 +347,8 @@ export default function Funcionarios({ appointments, setAppointments, profession
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-500 uppercase font-bold">Status do Fechamento</p>
-                  <span className={`inline-block text-xs font-extrabold px-2 py-0.5 rounded-full mt-1 ${
-                    isPaid ? 'bg-emerald-500/10 text-emerald-400' : 'bg-yellow-500/10 text-yellow-500'
-                  }`}>
+                  <span className={`inline-block text-xs font-extrabold px-2 py-0.5 rounded-full mt-1 ${isPaid ? 'bg-emerald-500/10 text-emerald-400' : 'bg-yellow-500/10 text-yellow-500'
+                    }`}>
                     {isPaid ? 'PAGO / LIQUIDADO' : 'AGUARDANDO PAGAMENTO'}
                   </span>
                 </div>
@@ -390,7 +387,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   </div>
                 </div>
               </div>
- 
+
               {/* Receipt details if Paid */}
               {isPaid && (
                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl space-y-1.5 text-xs">
@@ -407,7 +404,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   </div>
                 </div>
               )}
- 
+
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <button
@@ -417,7 +414,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                 >
                   Fechar Visualização
                 </button>
-                
+
                 {!isPaid ? (
                   <button
                     type="button"
@@ -447,24 +444,22 @@ export default function Funcionarios({ appointments, setAppointments, profession
       {/* MODAL: Adicionar Colaborador */}
       {isAddRender && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isAddExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
+          <div
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isAddExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`}
             onClick={() => setIsAddOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-            isAddExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isAddExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
             <form onSubmit={handleAddConfirm} className="flex flex-col max-h-[90vh]">
-              
+
               <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider">Novo Colaborador</h3>
                   <p className="text-xs text-gray-400 mt-1">Adicione um novo barbeiro ao time.</p>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsAddOpen(false)}
                   className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
@@ -475,7 +470,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
               </div>
 
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                
+
                 {/* Name Input */}
                 <div className="flex flex-col-reverse gap-1.5">
                   <input
@@ -485,7 +480,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                     placeholder="Ex: Lucas Ferreira"
                     value={newProf.name}
                     onChange={(e) => setNewProf(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
                   />
                   <label htmlFor="profName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome Completo</label>
                 </div>
@@ -516,16 +511,14 @@ export default function Funcionarios({ appointments, setAppointments, profession
       {/* MODAL: Remover Colaborador (Confirmação) */}
       {isRemoveRender && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isRemoveExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
+          <div
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isRemoveExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`}
             onClick={() => setIsRemoveOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-            isRemoveExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
-            
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isRemoveExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
+
             <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
               <div className="flex items-center gap-3">
                 <svg className="w-6 h-6 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -536,8 +529,8 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   <p className="text-xs text-gray-400 mt-1">Confirmar o desligamento do profissional.</p>
                 </div>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsRemoveOpen(false)}
                 className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
               >
@@ -551,7 +544,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
               <p className="text-sm text-gray-300">
                 Tem certeza que deseja remover o colaborador <strong>{profToRemove?.name}</strong>?
               </p>
-              
+
               <div className="p-4 bg-red-500/5 border border-red-500/15 rounded-xl text-xs space-y-2">
                 <p className="font-bold text-red-400">Impactos no sistema:</p>
                 <ul className="list-disc pl-4 space-y-1 text-gray-400">

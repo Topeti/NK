@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  Search, 
-  Plus, 
+import {
+  Package,
+  Search,
+  Plus,
   TrendingDown,
   ChevronDown
 } from 'lucide-react';
@@ -48,11 +48,10 @@ function FilterDropdown({ label, options, value, onChange }) {
                   onChange(opt.id);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-2 ${
-                  isSelected
+                className={`w-full text-left px-4 py-2 text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-2 ${isSelected
                     ? 'text-black bg-gold-400 font-bold'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {opt.colorClass && (
                   <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isSelected ? 'bg-black' : opt.colorClass}`} />
@@ -103,11 +102,10 @@ function FormDropdown({ label, options, value, onChange }) {
                   onChange(opt.id);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${
-                  isSelected
+                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${isSelected
                     ? 'text-black bg-gold-400 font-bold'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {opt.label}
               </button>
@@ -123,7 +121,7 @@ export default function Estoque({ inventory, setInventory }) {
   const [filterCategory, setFilterCategory] = useState('all'); // 'all', 'Produtos', 'Descartáveis', 'Equipamentos'
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'green', 'yellow', 'red'
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Local state for stock inputs
   const [addQtyInputs, setAddQtyInputs] = useState({}); // itemId -> number string
 
@@ -131,7 +129,7 @@ export default function Estoque({ inventory, setInventory }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isAddRender, setIsAddRender] = useState(false);
   const [isAddExiting, setIsAddExiting] = useState(false);
-  
+
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'Produtos',
@@ -244,11 +242,11 @@ export default function Estoque({ inventory, setInventory }) {
   // Filter products
   const filteredInventory = inventory.filter(item => {
     const status = getStockStatus(item.currentQuantity, item.minimumQuantity);
-    
+
     const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
     const matchesStatus = filterStatus === 'all' || status === filterStatus;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return matchesCategory && matchesStatus && matchesSearch;
   });
 
@@ -264,7 +262,7 @@ export default function Estoque({ inventory, setInventory }) {
             Controle de produtos, consumíveis e equipamentos
           </p>
         </div>
-        
+
         {/* Add Product Button */}
         <button
           type="button"
@@ -281,7 +279,7 @@ export default function Estoque({ inventory, setInventory }) {
       {/* Search and Filters Bar */}
       <div className="bg-card-bg border border-border-dark p-6 rounded-2xl">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end w-full">
-          
+
           {/* Search bar */}
           <div className="flex-1 flex flex-col gap-1.5 w-full">
             <span className="text-[10px] text-[#9ca3af] font-black uppercase tracking-wider select-none">
@@ -294,14 +292,14 @@ export default function Estoque({ inventory, setInventory }) {
                 placeholder="Buscar produto..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 rounded-xl pl-10 pr-4 py-2.5 text-base md:text-sm text-white input-premium placeholder-gray-600 transition-all duration-200 outline-none"
+                className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 transition-all duration-200 outline-none"
               />
             </div>
           </div>
 
           {/* Filters Selectors */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full md:w-auto">
-            
+
             {/* Category Filter */}
             <div className="flex flex-col gap-1.5 w-full sm:w-48">
               <span className="text-[10px] text-[#9ca3af] font-black uppercase tracking-wider select-none">
@@ -379,8 +377,8 @@ export default function Estoque({ inventory, setInventory }) {
           const inputVal = addQtyInputs[item.id] || '';
 
           return (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               className="bg-card-bg border border-border-dark p-4 rounded-xl flex flex-col justify-between card-premium group"
             >
               <div>
@@ -389,13 +387,13 @@ export default function Estoque({ inventory, setInventory }) {
                   <span className="text-xs uppercase font-bold text-gray-500 tracking-wider truncate">
                     {item.category}
                   </span>
-                  
+
                   <div className="flex items-center gap-2 shrink-0">
                     {/* Status Indicator Badge */}
                     <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full uppercase border shrink-0 ${statusInfo.textClass}`}>
                       {statusInfo.label}
                     </span>
-                    
+
                     {/* Premium Delete Button */}
                     <button
                       type="button"
@@ -428,14 +426,13 @@ export default function Estoque({ inventory, setInventory }) {
 
                   {/* Quantity bar viz */}
                   <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden border border-white/5">
-                    <div 
-                      className={`h-full rounded-full ${
-                        item.currentQuantity < item.minimumQuantity 
-                          ? 'bg-red-500' 
+                    <div
+                      className={`h-full rounded-full ${item.currentQuantity < item.minimumQuantity
+                          ? 'bg-red-500'
                           : item.currentQuantity === item.minimumQuantity
-                          ? 'bg-yellow-500'
-                          : 'bg-emerald-500'
-                      }`}
+                            ? 'bg-yellow-500'
+                            : 'bg-emerald-500'
+                        }`}
                       style={{ width: `${Math.min(100, (item.currentQuantity / (item.minimumQuantity || 1)) * 50)}%` }}
                     ></div>
                   </div>
@@ -450,7 +447,7 @@ export default function Estoque({ inventory, setInventory }) {
                   placeholder="Qtd"
                   value={inputVal}
                   onChange={(e) => setAddQtyInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
-                  className="w-16 h-10 bg-black/40 border border-border-dark rounded-xl px-2 text-base md:text-xs text-center text-white input-premium placeholder-gray-600 focus:outline-none"
+                  className="w-16 h-10 bg-black/40 border border-border-dark rounded-xl px-2 text-xs text-center text-white input-premium placeholder-gray-600 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -478,24 +475,22 @@ export default function Estoque({ inventory, setInventory }) {
       {/* MODAL: Novo Produto */}
       {isAddRender && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isAddExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
+          <div
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isAddExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`}
             onClick={() => setIsAddOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-            isAddExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isAddExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
             <form onSubmit={handleAddProduct} className="flex flex-col max-h-[90vh]">
-              
+
               <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider">Novo Item no Estoque</h3>
                   <p className="text-xs text-gray-400 mt-1">Registre um novo produto, descarte ou equipamento.</p>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsAddOpen(false)}
                   className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
@@ -506,7 +501,7 @@ export default function Estoque({ inventory, setInventory }) {
               </div>
 
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                
+
                 {/* Product Name Input */}
                 <div className="flex flex-col-reverse gap-1.5">
                   <input
@@ -516,7 +511,7 @@ export default function Estoque({ inventory, setInventory }) {
                     placeholder="Ex: Cera Modeladora Strong"
                     value={newProduct.name}
                     onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
                   />
                   <label htmlFor="prodName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Item</label>
                 </div>
@@ -547,11 +542,11 @@ export default function Estoque({ inventory, setInventory }) {
                       placeholder="Ex: 10"
                       value={newProduct.currentQuantity}
                       onChange={(e) => setNewProduct(prev => ({ ...prev, currentQuantity: e.target.value }))}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
                     />
                     <label htmlFor="prodQty" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Inicial</label>
                   </div>
- 
+
                   {/* Minimum Quantity Input */}
                   <div className="flex flex-col-reverse gap-1.5">
                     <input
@@ -562,7 +557,7 @@ export default function Estoque({ inventory, setInventory }) {
                       placeholder="Ex: 5"
                       value={newProduct.minimumQuantity}
                       onChange={(e) => setNewProduct(prev => ({ ...prev, minimumQuantity: e.target.value }))}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
                     />
                     <label htmlFor="prodMin" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Mínimo</label>
                   </div>
@@ -594,16 +589,14 @@ export default function Estoque({ inventory, setInventory }) {
       {/* MODAL: Excluir Produto (Confirmação) */}
       {isRemoveRender && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isRemoveExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
+          <div
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isRemoveExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`}
             onClick={() => setIsRemoveOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-            isRemoveExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
-            
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isRemoveExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
+
             <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
               <div className="flex items-center gap-3">
                 <svg className="w-6 h-6 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -614,8 +607,8 @@ export default function Estoque({ inventory, setInventory }) {
                   <p className="text-xs text-gray-400 mt-1 text-left">Excluir item do catálogo.</p>
                 </div>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsRemoveOpen(false)}
                 className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
               >

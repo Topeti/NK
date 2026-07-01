@@ -41,11 +41,10 @@ function FormDropdown({ label, options, value, onChange }) {
                   onChange(opt.id);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${
-                  isSelected
+                className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer ${isSelected
                     ? 'text-black bg-gold-400 font-bold'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {opt.label}
               </button>
@@ -106,11 +105,10 @@ function CustomDropdown({ label, options, value, onChange }) {
                   onChange(opt.id);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer flex items-center gap-2 ${
-                  isSelected
+                className={`w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 cursor-pointer flex items-center gap-2 ${isSelected
                     ? 'text-black bg-gold-400 font-bold'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {opt.colorClass && (
                   <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isSelected ? 'bg-black' : opt.colorClass}`} />
@@ -139,11 +137,11 @@ export default function Agendamentos({ appointments, setAppointments, profession
       setSelectedProf(professionals[0]?.id || '');
     }
   }, [professionals, selectedProf, agendaMode]);
-  
+
   // Modals state
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedAppForPayment, setSelectedAppForPayment] = useState(null);
-  
+
   const [isBookOpen, setIsBookOpen] = useState(false);
   const [isBookRender, setIsBookRender] = useState(false);
   const [isBookExiting, setIsBookExiting] = useState(false);
@@ -175,10 +173,10 @@ export default function Agendamentos({ appointments, setAppointments, profession
     const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
     const diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
     const monday = new Date(today.setDate(diff));
-    
+
     const dayLabels = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
     const dayShortLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-    
+
     const list = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
@@ -202,13 +200,13 @@ export default function Agendamentos({ appointments, setAppointments, profession
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    
+
     const dayLabels = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
     const dayShortLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-    
+
     let dayIndex = today.getDay() - 1;
     if (dayIndex < 0) dayIndex = 6;
-    
+
     return {
       dateStr: `${yyyy}-${mm}-${dd}`,
       label: dayLabels[dayIndex],
@@ -328,7 +326,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
     const targetDate = bookDetails.date || activeDate;
     const allDaysList = agendaMode === 'calendario' ? currentWeekDays : [todayDayObj];
     const targetDayObj = allDaysList.find(d => d.dateStr === targetDate) || todayDayObj;
-    
+
     const newApp = {
       id: Date.now(),
       clientName: bookDetails.clientName,
@@ -376,26 +374,23 @@ export default function Agendamentos({ appointments, setAppointments, profession
           {/* Segmented Control */}
           <div className="hidden md:flex bg-card-bg border border-border-dark p-1 rounded-xl gap-1 shadow-inner select-none relative h-10 w-56 shrink-0">
             {/* Sliding Pill */}
-            <div 
-              className={`absolute top-1 bottom-1 left-1 w-[calc(50%-6px)] bg-gold-400 rounded-lg shadow-lg shadow-gold-400/20 transition-transform duration-300 ease-out ${
-                agendaMode === 'calendario' ? 'translate-x-[calc(100%+4px)]' : 'translate-x-0'
-              }`}
+            <div
+              className={`absolute top-1 bottom-1 left-1 w-[calc(50%-6px)] bg-gold-400 rounded-lg shadow-lg shadow-gold-400/20 transition-transform duration-300 ease-out ${agendaMode === 'calendario' ? 'translate-x-[calc(100%+4px)]' : 'translate-x-0'
+                }`}
             />
             <button
               type="button"
               onClick={() => handleModeChange('agenda')}
-              className={`relative z-10 flex-1 flex items-center justify-center rounded-lg text-xs sm:text-sm font-semibold transition-colors duration-300 cursor-pointer ${
-                agendaMode === 'agenda' ? 'text-black' : 'text-gray-400 hover:text-white'
-              }`}
+              className={`relative z-10 flex-1 flex items-center justify-center rounded-lg text-xs sm:text-sm font-semibold transition-colors duration-300 cursor-pointer ${agendaMode === 'agenda' ? 'text-black' : 'text-gray-400 hover:text-white'
+                }`}
             >
               Agenda
             </button>
             <button
               type="button"
               onClick={() => handleModeChange('calendario')}
-              className={`relative z-10 flex-1 flex items-center justify-center rounded-lg text-xs sm:text-sm font-semibold transition-colors duration-300 cursor-pointer ${
-                agendaMode === 'calendario' ? 'text-black' : 'text-gray-400 hover:text-white'
-              }`}
+              className={`relative z-10 flex-1 flex items-center justify-center rounded-lg text-xs sm:text-sm font-semibold transition-colors duration-300 cursor-pointer ${agendaMode === 'calendario' ? 'text-black' : 'text-gray-400 hover:text-white'
+                }`}
             >
               Calendário
             </button>
@@ -408,20 +403,20 @@ export default function Agendamentos({ appointments, setAppointments, profession
               options={
                 agendaMode === 'agenda'
                   ? professionals.map((prof) => {
+                    let colorClass = 'bg-sky-500';
+                    if (prof.id === 'gustavo') colorClass = 'bg-gold-400';
+                    else if (prof.id !== 'nicolas') colorClass = 'bg-amber-500';
+                    return { id: prof.id, label: prof.name, colorClass };
+                  })
+                  : [
+                    { id: 'all', label: 'Todos Funcionários', colorClass: 'bg-gray-500/50' },
+                    ...professionals.map((prof) => {
                       let colorClass = 'bg-sky-500';
                       if (prof.id === 'gustavo') colorClass = 'bg-gold-400';
                       else if (prof.id !== 'nicolas') colorClass = 'bg-amber-500';
                       return { id: prof.id, label: prof.name, colorClass };
                     })
-                  : [
-                      { id: 'all', label: 'Todos Funcionários', colorClass: 'bg-gray-500/50' },
-                      ...professionals.map((prof) => {
-                        let colorClass = 'bg-sky-500';
-                        if (prof.id === 'gustavo') colorClass = 'bg-gold-400';
-                        else if (prof.id !== 'nicolas') colorClass = 'bg-amber-500';
-                        return { id: prof.id, label: prof.name, colorClass };
-                      })
-                    ]
+                  ]
               }
               value={selectedProf}
               onChange={setSelectedProf}
@@ -434,7 +429,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
 
       {/* MOBILE SCHEDULER VIEW (block md:hidden) */}
       <div className="block md:hidden space-y-5">
-        
+
         {/* 1. Seletor de Dia Horizontal */}
         <div className="space-y-2">
           <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Selecione o Dia:</label>
@@ -446,11 +441,10 @@ export default function Agendamentos({ appointments, setAppointments, profession
                   key={day.dateStr}
                   type="button"
                   onClick={() => setMobileActiveDate(day.dateStr)}
-                  className={`flex flex-col items-center justify-center shrink-0 w-16 h-14 border rounded-xl text-center cursor-pointer transition-all duration-200 ${
-                    isSelected
+                  className={`flex flex-col items-center justify-center shrink-0 w-16 h-14 border rounded-xl text-center cursor-pointer transition-all duration-200 ${isSelected
                       ? 'bg-gold-400 text-black border-gold-400 font-bold shadow-lg shadow-gold-400/10'
                       : 'bg-black/30 text-gray-400 border-border-dark hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span className="text-[10px] uppercase font-bold">{day.shortLabel}</span>
                   <span className="text-xs font-black mt-0.5">{day.formatted}</span>
@@ -473,11 +467,10 @@ export default function Agendamentos({ appointments, setAppointments, profession
                 key={period.id}
                 type="button"
                 onClick={() => setMobileActivePeriod(period.id)}
-                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all cursor-pointer h-11 ${
-                  isActive
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all cursor-pointer h-11 ${isActive
                     ? 'bg-gold-400 text-black shadow-lg shadow-gold-400/20'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 <span>{period.label}</span>
                 <span className={`text-[9px] font-medium opacity-80 ${isActive ? 'text-black/75' : 'text-gray-500'}`}>{period.info}</span>
@@ -491,7 +484,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
           <div className="flex justify-between items-center text-xs text-gray-400 px-1">
             <span className="font-semibold uppercase tracking-wider">Horários</span>
             <span className="font-semibold text-gold-400">
-              {professionals.find(p => p.id === (selectedProf !== 'all' ? selectedProf : (professionals[0]?.id || '')) )?.name || ''}
+              {professionals.find(p => p.id === (selectedProf !== 'all' ? selectedProf : (professionals[0]?.id || '')))?.name || ''}
             </span>
           </div>
 
@@ -503,20 +496,20 @@ export default function Agendamentos({ appointments, setAppointments, profession
               return hour >= 18;
             }).map((slot) => {
               const activeMobileProf = selectedProf !== 'all' ? selectedProf : (professionals[0]?.id || '');
-              
+
               // Find if there is an appointment covering this slot
               const activeProfAppointments = appointments.filter(
                 app => app.date === mobileActiveDate && app.professionalId === activeMobileProf
               );
-              
+
               const coveringApp = activeProfAppointments.find(app => {
                 const [appH, appM] = app.time.split(':').map(Number);
                 const appStart = appH * 60 + appM;
                 const appEnd = appStart + app.duration;
-                
+
                 const [slotH, slotM] = slot.split(':').map(Number);
                 const slotMin = slotH * 60 + slotM;
-                
+
                 return slotMin >= appStart && slotMin < appEnd;
               });
 
@@ -645,24 +638,22 @@ export default function Agendamentos({ appointments, setAppointments, profession
       {/* MODAL 2: Booking Form Modal */}
       {isBookRender && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-              isBookExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-            }`} 
+          <div
+            className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isBookExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+              }`}
             onClick={() => setIsBookOpen(false)}
           ></div>
-          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-            isBookExiting ? 'animate-modal-out' : 'animate-modal-in'
-          }`}>
+          <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isBookExiting ? 'animate-modal-out' : 'animate-modal-in'
+            }`}>
             <form onSubmit={handleBookConfirm} className="flex flex-col max-h-[90vh]">
-              
+
               <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
                 <div>
                   <h3 className="text-lg font-bold text-white">Agendar Novo Cliente</h3>
                   <p className="text-xs text-gray-400 mt-1">Preencha os dados do agendamento.</p>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsBookOpen(false)}
                   className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
@@ -671,7 +662,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
               </div>
 
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                
+
                 {/* Client Name Input */}
                 <div className="flex flex-col-reverse gap-1.5">
                   <input
@@ -681,7 +672,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
                     placeholder="Ex: João Silva"
                     value={bookDetails.clientName}
                     onChange={(e) => setBookDetails(prev => ({ ...prev, clientName: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer"
                   />
                   <label htmlFor="clientName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Cliente</label>
                 </div>

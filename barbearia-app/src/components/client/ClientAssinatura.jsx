@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  CreditCard, 
-  Sparkles, 
-  Check, 
-  AlertTriangle, 
-  ShieldCheck, 
+import {
+  CreditCard,
+  Sparkles,
+  Check,
+  AlertTriangle,
+  ShieldCheck,
   X,
   RefreshCw
 } from 'lucide-react';
@@ -102,14 +102,14 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
     }
 
     setIsSubmitting(true);
-    
+
     setTimeout(() => {
       setIsSubmitting(false);
       setPlanState('B');
-      
+
       const last4 = cardNumber.replace(/\s/g, '').slice(-4) || '4259';
-      const activePlan = selectedPlan || PLANS[1]; 
-      
+      const activePlan = selectedPlan || PLANS[1];
+
       const newJoao = {
         id: 999,
         name: 'João Silva',
@@ -136,15 +136,15 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
   // Submit Cancel Subscription
   const handleCancelSubmit = () => {
     setPlanState('A');
-    
-    setSubClients(subClients.map(c => 
-      c.name === 'João Silva' 
-        ? { 
-            ...c, 
-            status: 'Cancelada', 
-            cancellationDate: '26/06/2026', 
-            cancellationReason: 'Cancelada pelo cliente no painel' 
-          }
+
+    setSubClients(subClients.map(c =>
+      c.name === 'João Silva'
+        ? {
+          ...c,
+          status: 'Cancelada',
+          cancellationDate: '26/06/2026',
+          cancellationReason: 'Cancelada pelo cliente no painel'
+        }
         : c
     ));
     setIsCancelOpen(false);
@@ -159,9 +159,9 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
       setIsSubmitting(false);
       setPlanState('B');
 
-      setSubClients(subClients.map(c => 
-        c.name === 'João Silva' 
-          ? { ...c, status: 'Ativa', nextBilling: '15/07/2026' } 
+      setSubClients(subClients.map(c =>
+        c.name === 'João Silva'
+          ? { ...c, status: 'Ativa', nextBilling: '15/07/2026' }
           : c
       ));
 
@@ -171,14 +171,14 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
 
   return (
     <div className="space-y-6">
-      
+
       {/* 1. MODO DEMO PRESENTATION HEADER */}
       <div className="bg-black/40 border border-border-dark p-3.5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs select-none">
         <div className="flex items-center gap-2 text-gray-400 font-bold">
           <Sparkles className="w-4 h-4 text-gold-400 animate-pulse animate-badge-pulse" />
           <span>APRESENTAÇÃO: Estados da Assinatura:</span>
         </div>
-        
+
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -186,21 +186,20 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
               setPlanState('A');
               setSubClients(subClients.filter(c => c.name !== 'João Silva'));
             }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${
-              planState === 'A'
+            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${planState === 'A'
                 ? 'bg-gold-400 text-black border-gold-400'
                 : 'bg-black/30 text-gray-400 border-border-dark hover:text-white'
-            }`}
+              }`}
           >
             Estado A: Sem Plano
           </button>
-          
+
           <button
             type="button"
             onClick={() => {
               setPlanState('B');
               const hasJoao = subClients.some(c => c.name === 'João Silva');
-              const activePlan = PLANS[1]; 
+              const activePlan = PLANS[1];
               const activeJoao = {
                 id: 999,
                 name: 'João Silva',
@@ -223,11 +222,10 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                 setSubClients(subClients.map(c => c.name === 'João Silva' ? activeJoao : c));
               }
             }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${
-              planState === 'B'
+            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${planState === 'B'
                 ? 'bg-emerald-500 text-black border-emerald-500'
                 : 'bg-black/30 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/5'
-            }`}
+              }`}
           >
             Estado B: Plano Ativo
           </button>
@@ -257,11 +255,10 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
               const filtered = subClients.filter(c => c.name !== 'João Silva');
               setSubClients([...filtered, failedJoao]);
             }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${
-              planState === 'C'
+            className={`px-4 py-1.5 rounded-lg text-xs font-black border transition-all duration-200 cursor-pointer h-10 flex items-center active:scale-97 ${planState === 'C'
                 ? 'bg-red-500 text-white border-red-500'
                 : 'bg-black/30 text-red-400 border-red-500/20 hover:bg-red-500/5'
-            }`}
+              }`}
           >
             Estado C: Falha no Pagamento
           </button>
@@ -280,18 +277,17 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {PLANS.map((plan) => (
-              <div 
+              <div
                 key={plan.id}
-                className={`bg-card-bg border rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-200 card-premium ${
-                  plan.popular ? 'border-gold-400/50 shadow-[0_0_20px_rgba(212,168,67,0.06)]' : 'border-border-dark'
-                }`}
+                className={`bg-card-bg border rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-200 card-premium ${plan.popular ? 'border-gold-400/50 shadow-[0_0_20px_rgba(212,168,67,0.06)]' : 'border-border-dark'
+                  }`}
               >
                 {plan.popular && (
                   <div className="absolute top-0 right-0 bg-gold-400 text-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-bl-lg select-none">
                     Mais Popular
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-bold text-white text-base">{plan.name}</h4>
@@ -300,7 +296,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       <span className="text-xs text-gray-500 font-normal">/mês</span>
                     </p>
                   </div>
-                  
+
                   <ul className="space-y-2.5 text-xs text-gray-400 pt-2 border-t border-border-dark/60">
                     {plan.perks.map((perk, i) => (
                       <li key={i} className="flex items-start gap-2">
@@ -317,11 +313,10 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                     setSelectedPlan(plan);
                     setIsSubscribeOpen(true);
                   }}
-                  className={`w-full h-11 mt-6 text-xs font-bold rounded-xl uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-                    plan.popular
+                  className={`w-full h-11 mt-6 text-xs font-bold rounded-xl uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${plan.popular
                       ? 'bg-gold-400 text-black hover:bg-gold-500 btn-primary'
                       : 'bg-black/30 border border-border-dark text-gold-400 hover:bg-white/5 btn-secondary'
-                  }`}
+                    }`}
                 >
                   Assinar Agora
                 </button>
@@ -334,7 +329,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
       {/* STATE B & C: ACTIVE PLAN OR PAYMENT FAILURE */}
       {(planState === 'B' || planState === 'C') && (
         <div className="space-y-6 animate-[fadeIn_0.25s_ease-out]">
-          
+
           {/* Failure Alert Banner (State C only) */}
           {planState === 'C' && (
             <div className="p-4 bg-red-500/5 border border-red-500/25 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -348,7 +343,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedPlan(PLANS[1]); 
+                  setSelectedPlan(PLANS[1]);
                   setIsSubscribeOpen(true);
                 }}
                 className="w-full sm:w-auto h-10 px-4 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-lg shadow-red-500/10 shrink-0 uppercase tracking-wider flex items-center justify-center gap-1.5"
@@ -360,7 +355,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
 
           {/* Active Plan Card Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Plan Info Card */}
             <div className="bg-card-bg border border-border-dark p-6 rounded-2xl md:col-span-2 space-y-5">
               <div className="flex justify-between items-start pb-4 border-b border-border-dark/60">
@@ -371,11 +366,10 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                     Assinante desde 15/04/2026
                   </p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase border select-none whitespace-nowrap shrink-0 ${
-                  planState === 'B' 
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase border select-none whitespace-nowrap shrink-0 ${planState === 'B'
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                     : 'bg-red-500/10 text-red-400 border-red-500/30'
-                }`}>
+                  }`}>
                   {planState === 'B' ? 'Ativa' : 'Suspensa'}
                 </span>
               </div>
@@ -433,7 +427,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
               </div>
 
               <div className="space-y-4 text-xs">
-                
+
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0 text-gray-400 font-bold select-none text-xs">
                     18
@@ -475,7 +469,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
       {isSubscribeOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-backdrop-in" onClick={closeSubscribeModal}></div>
-          
+
           <div className="bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col animate-modal-in">
             {/* Header */}
             <div className="p-5 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
@@ -487,8 +481,8 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                   {planState === 'C' ? 'Insira novos dados de pagamento' : selectedPlan?.name}
                 </span>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={closeSubscribeModal}
                 className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
               >
@@ -499,7 +493,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
             {/* Form */}
             <form onSubmit={planState === 'C' ? handleUpdatePayment : handleSubscribeSubmit} className="flex flex-col max-h-[80vh] overflow-hidden">
               <div className="p-5 space-y-4 overflow-y-auto flex-1 text-left">
-                
+
                 {/* Plan price banner */}
                 {planState !== 'C' && selectedPlan && (
                   <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl flex justify-between items-center text-xs">
@@ -519,7 +513,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardNumber}
                       onChange={handleCardNumberChange}
                       placeholder="•••• •••• •••• ••••"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-3 text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -533,7 +527,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
                     placeholder="EX: JOÃO A SILVA"
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
                   />
                 </div>
 
@@ -547,7 +541,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardExpiry}
                       onChange={handleExpiryChange}
                       placeholder="MM/AA"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -558,7 +552,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardCvv}
                       onChange={handleCvvChange}
                       placeholder="•••"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
                     />
                   </div>
                 </div>
@@ -604,7 +598,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
       {isCancelOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-backdrop-in" onClick={() => setIsCancelOpen(false)}></div>
-          
+
           <div className="bg-card-bg border border-border-dark w-full max-w-sm rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 p-6 space-y-4 animate-modal-in text-center max-h-[90vh] overflow-y-auto">
             <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-500 shrink-0">
               <AlertTriangle className="w-6 h-6" />

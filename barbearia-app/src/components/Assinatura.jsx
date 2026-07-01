@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard, 
-  Search, 
-  CheckCircle2, 
-  AlertTriangle, 
-  XCircle, 
-  Clock, 
-  TrendingUp, 
-  User, 
-  Mail, 
-  Phone, 
+import {
+  CreditCard,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Clock,
+  TrendingUp,
+  User,
+  Mail,
+  Phone,
   Calendar,
   X,
   BellRing,
@@ -25,16 +25,15 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 export default function Assinatura({ subClients, setSubClients }) {
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'Ativa', 'Falha no pagamento', 'Cancelada', 'Pendente'
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Details modal state
   const [selectedClient, setSelectedClient] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDetailRender, setIsDetailRender] = useState(false);
   const [isDetailExiting, setIsDetailExiting] = useState(false);
  
-  // Toast notification state
-  const [showToast, setShowToast] = useState(false);
-  const [toastClient, setToastClient] = useState('');
+  // Tracker for notified clients
+  const [notifiedClients, setNotifiedClients] = useState({});
  
   // Handle modal animation hooks
   useEffect(() => {
@@ -59,13 +58,8 @@ export default function Assinatura({ subClients, setSubClients }) {
     setIsDetailOpen(false);
   };
  
-  const handleNotifyClient = (clientName) => {
-    setToastClient(clientName);
-    setShowToast(true);
-    const timer = setTimeout(() => {
-      setShowToast(false);
-    }, 3500);
-    return () => clearTimeout(timer);
+  const handleNotifyClient = (clientId) => {
+    setNotifiedClients(prev => ({ ...prev, [clientId]: true }));
   };
 
   // 1. Calculate dynamic statistics
@@ -73,7 +67,7 @@ export default function Assinatura({ subClients, setSubClients }) {
   const totalFailed = subClients.filter(c => c.status === 'Falha no pagamento').length;
   const totalCanceled = subClients.filter(c => c.status === 'Cancelada').length;
   const totalPending = subClients.filter(c => c.status === 'Pendente').length;
-  
+
   // MRR = sum of plan prices of active subscriptions
   const mrr = subClients
     .filter(c => c.status === 'Ativa')
@@ -81,8 +75,8 @@ export default function Assinatura({ subClients, setSubClients }) {
 
   // 2. Filter subscriber list
   const filteredSubscribers = subClients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          client.planName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.planName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === 'all' || client.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -105,7 +99,7 @@ export default function Assinatura({ subClients, setSubClients }) {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Top Header Row with Title */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-border-dark">
         <div>
@@ -120,7 +114,7 @@ export default function Assinatura({ subClients, setSubClients }) {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-        
+
         {/* Metric 1: Active */}
         <div className="bg-[#181818] border border-border-dark/60 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/[0.02] rounded-full blur-2xl group-hover:bg-emerald-500/[0.04] transition-all duration-500"></div>
@@ -204,7 +198,7 @@ export default function Assinatura({ subClients, setSubClients }) {
       {/* Filter and Search Bar */}
       <div className="bg-card-bg border border-border-dark p-4 md:p-6 rounded-2xl space-y-4">
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
-          
+
           {/* Search Input */}
           <div className="relative w-full lg:max-w-xs">
             <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
@@ -213,7 +207,7 @@ export default function Assinatura({ subClients, setSubClients }) {
               placeholder="Buscar cliente ou plano..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-base md:text-sm text-white input-premium placeholder-gray-600 focus:outline-none"
+              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 focus:outline-none"
             />
           </div>
 
@@ -221,54 +215,49 @@ export default function Assinatura({ subClients, setSubClients }) {
           <div className="flex flex-wrap gap-2 select-none">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer h-10 flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
-                filterStatus === 'all'
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer h-10 flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${filterStatus === 'all'
                   ? 'bg-gold-400/10 border-gold-400 text-gold-400 shadow-[0_0_15px_rgba(212,168,67,0.15)] font-black'
                   : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
-              }`}
+                }`}
             >
               Todas ({subClients.length})
             </button>
             <button
               onClick={() => setFilterStatus('Ativa')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
-                filterStatus === 'Ativa'
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${filterStatus === 'Ativa'
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] font-black'
                   : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
-              }`}
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Ativa' ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
               Ativas ({totalActive})
             </button>
             <button
               onClick={() => setFilterStatus('Falha no pagamento')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
-                filterStatus === 'Falha no pagamento'
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${filterStatus === 'Falha no pagamento'
                   ? 'bg-rose-500/10 border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.15)] font-black'
                   : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
-              }`}
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Falha no pagamento' ? 'bg-rose-400 animate-pulse' : 'bg-gray-500'}`} />
               Falhas ({totalFailed})
             </button>
             <button
               onClick={() => setFilterStatus('Cancelada')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
-                filterStatus === 'Cancelada'
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${filterStatus === 'Cancelada'
                   ? 'bg-white/10 border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] font-black'
                   : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
-              }`}
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Cancelada' ? 'bg-white' : 'bg-gray-500'}`} />
               Canceladas ({totalCanceled})
             </button>
             <button
               onClick={() => setFilterStatus('Pendente')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
-                filterStatus === 'Pendente'
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${filterStatus === 'Pendente'
                   ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)] font-black'
                   : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
-              }`}
+                }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Pendente' ? 'bg-amber-400 animate-pulse' : 'bg-gray-500'}`} />
               Pendentes ({totalPending})
@@ -296,7 +285,7 @@ export default function Assinatura({ subClients, setSubClients }) {
             {filteredSubscribers.map((client) => {
               const badgeInfo = getStatusBadge(client.status);
               const isFailedRow = client.status === 'Falha no pagamento';
-              
+
               return (
                 <tr key={client.id} className="hover:bg-white/[0.01] transition-colors duration-150">
                   {/* Name column with avatar */}
@@ -311,12 +300,12 @@ export default function Assinatura({ subClients, setSubClients }) {
                       </div>
                     </div>
                   </td>
-                  
+
                   {/* Plan Name */}
                   <td className="p-4">
                     <p className="font-semibold text-gray-200 truncate">{client.planName}</p>
                   </td>
-                  
+
                   {/* Plan Value */}
                   <td className="p-4 hidden xl:table-cell">
                     <p className="font-bold text-white">
@@ -324,14 +313,14 @@ export default function Assinatura({ subClients, setSubClients }) {
                       <span className="text-xs text-gray-500 font-normal">/mês</span>
                     </p>
                   </td>
-                  
+
                   {/* Status Badge */}
                   <td className="p-4">
                     <span className={`inline-block text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border select-none whitespace-nowrap shrink-0 ${badgeInfo.classes}`}>
                       {badgeInfo.label}
                     </span>
                   </td>
-                  
+
                   {/* Next Billing/Cancellation date */}
                   <td className="p-4 hidden lg:table-cell">
                     <span className="text-gray-300 font-medium">
@@ -344,7 +333,7 @@ export default function Assinatura({ subClients, setSubClients }) {
                       )}
                     </span>
                   </td>
-                  
+
                   {/* Details Button */}
                   <td className="p-4 text-right">
                     <button
@@ -366,15 +355,15 @@ export default function Assinatura({ subClients, setSubClients }) {
       <div className="md:hidden space-y-4">
         {filteredSubscribers.map((client) => {
           const badgeInfo = getStatusBadge(client.status);
-          
+
           return (
-            <div 
+            <div
               key={client.id}
               className="bg-[#181818] border border-border-dark p-5 rounded-2xl flex flex-col justify-between space-y-4 card-premium relative overflow-hidden group hover:border-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
             >
               {/* Card decorative mesh */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-full blur-2xl group-hover:bg-white/[0.03] transition-all duration-500"></div>
-              
+
               <div className="flex justify-between items-start gap-3">
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-xs font-black text-gold-400 select-none shrink-0 shadow-inner">
@@ -385,7 +374,7 @@ export default function Assinatura({ subClients, setSubClients }) {
                     <p className="text-[10px] text-gray-500 truncate mt-0.5">{client.email}</p>
                   </div>
                 </div>
-                
+
                 <span className={`inline-block text-[9px] font-black px-2.5 py-1 rounded-full uppercase border shrink-0 tracking-wider ${badgeInfo.classes}`}>
                   {badgeInfo.label}
                 </span>
@@ -434,22 +423,20 @@ export default function Assinatura({ subClients, setSubClients }) {
         const client = selectedClient;
         const isFailed = client.status === 'Falha no pagamento';
         const isCanceled = client.status === 'Cancelada';
-        
+
         return (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
             {/* Backdrop */}
-            <div 
-              className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${
-                isDetailExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
-              }`} 
+            <div
+              className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isDetailExiting ? 'animate-backdrop-out' : 'animate-backdrop-in'
+                }`}
               onClick={handleCloseDetails}
             ></div>
-            
+
             {/* Modal Box */}
-            <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${
-              isDetailExiting ? 'animate-modal-out' : 'animate-modal-in'
-            }`}>
-              
+            <div className={`bg-card-bg border border-border-dark w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col ${isDetailExiting ? 'animate-modal-out' : 'animate-modal-in'
+              }`}>
+
               {/* Header */}
               <div className="p-6 border-b border-border-dark flex justify-between items-center bg-black/20 shrink-0">
                 <div className="flex items-center gap-3">
@@ -461,8 +448,8 @@ export default function Assinatura({ subClients, setSubClients }) {
                     <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Ficha do Assinante</span>
                   </div>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleCloseDetails}
                   className="text-gray-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 btn-icon-only cursor-pointer shrink-0 transition-colors"
                 >
@@ -472,27 +459,44 @@ export default function Assinatura({ subClients, setSubClients }) {
 
               {/* Body */}
               <div className="p-6 space-y-5 overflow-y-auto flex-1 text-left">
-                
+
                 {/* Status-specific warning banners */}
-                {isFailed && (
-                  <div className="p-4 bg-red-500/5 border border-red-500/15 rounded-xl space-y-3">
-                    <div className="flex items-start gap-2.5">
-                      <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                      <div className="text-xs">
-                        <p className="font-bold text-red-400 uppercase tracking-wide">Cobrança Rejeitada</p>
-                        <p className="text-gray-300 mt-1">Motivo: {client.failureReason}</p>
+                {isFailed && (() => {
+                  const alreadyNotified = !!notifiedClients[client.id];
+                  return (
+                    <div className="p-4 bg-red-500/5 border border-red-500/15 rounded-xl space-y-3">
+                      <div className="flex items-start gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                        <div className="text-xs">
+                          <p className="font-bold text-red-400 uppercase tracking-wide">Cobrança Rejeitada</p>
+                          <p className="text-gray-300 mt-1">Motivo: {client.failureReason}</p>
+                        </div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => handleNotifyClient(client.id)}
+                        disabled={alreadyNotified}
+                        className={`w-full py-2.5 px-3 text-xs font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 h-10 ${
+                          alreadyNotified
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 cursor-not-allowed'
+                            : 'bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-lg shadow-red-500/10'
+                        }`}
+                      >
+                        {alreadyNotified ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>Aviso Enviado com Sucesso</span>
+                          </>
+                        ) : (
+                          <>
+                            <BellRing className="w-3.5 h-3.5 whitespace-nowrap shrink-0" />
+                            <span>Notificar cliente por WhatsApp</span>
+                          </>
+                        )}
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleNotifyClient(client.name)}
-                      className="w-full py-2.5 px-3 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-red-500/10 h-10"
-                    >
-                      <BellRing className="w-3.5 h-3.5 whitespace-nowrap shrink-0" />
-                      <span>Notificar cliente por WhatsApp</span>
-                    </button>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {isCanceled && (
                   <div className="p-4 bg-gray-500/5 border border-border-dark rounded-xl text-xs space-y-1">
@@ -558,11 +562,10 @@ export default function Assinatura({ subClients, setSubClients }) {
                           <span>{log.date}</span>
                           <span className="text-center font-semibold text-white">{currencyFormatter.format(log.amount)}</span>
                           <span className="text-right">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
-                              log.status === 'Pago'
+                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${log.status === 'Pago'
                                 ? 'bg-emerald-500/10 text-emerald-400'
                                 : 'bg-red-500/10 text-red-400'
-                            }`}>
+                              }`}>
                               {log.status}
                             </span>
                           </span>
@@ -593,20 +596,7 @@ export default function Assinatura({ subClients, setSubClients }) {
           </div>
         );
       })()}
- 
-      {/* Toast de Sucesso */}
-      {showToast && (
-        <div className="fixed bottom-6 right-6 z-[100] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-2xl flex items-center gap-3.5 backdrop-blur-md shadow-[0_4px_25px_rgba(16,185,129,0.2)] animate-backdrop-in max-w-xs">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 animate-bounce" />
-          <div className="text-xs">
-            <p className="font-black uppercase tracking-wider text-[10px]">Aviso Enviado</p>
-            <p className="text-gray-300 mt-0.5 font-bold leading-normal">
-              Notificação de cobrança enviada para <strong className="text-white">{toastClient}</strong> via WhatsApp com sucesso!
-            </p>
-          </div>
-        </div>
-      )}
- 
+
     </div>
   );
 }
