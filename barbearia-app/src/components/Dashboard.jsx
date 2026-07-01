@@ -201,91 +201,94 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
       </div>
 
       {/* Overview Cards */}
-      <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         
         {/* Card 1: Revenue Card */}
-        <div className="bg-card-bg border border-border-dark p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
+        <div className="bg-card-bg border border-border-dark p-4 sm:p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/5 rounded-full blur-3xl group-hover:bg-gold-400/10 transition-all duration-500"></div>
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm text-gray-400 font-medium">
+          <div className="flex justify-between items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-400 font-semibold uppercase tracking-wider select-none truncate">
                 {viewMode === 'diario' ? 'Faturamento de Hoje' : 'Faturamento do Mês'}
               </p>
-              <h3 className="text-3xl font-bold text-white mt-2 tracking-tight">
+              <h3 className="text-2xl sm:text-3xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">
                 <AnimatedNumber
                   value={viewMode === 'diario' ? todayTotalRevenue : monthlyTotalRevenue}
                   format={(val) => currencyFormatter.format(val)}
                 />
               </h3>
-              <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                <span className="text-emerald-500 font-semibold flex items-center">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-2.5 flex flex-wrap items-center gap-1.5 leading-none">
+                <span className="text-emerald-400 font-bold flex items-center gap-0.5 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">
+                  <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                   <AnimatedNumber
                     value={viewMode === 'diario' ? 14.2 : monthlyRevenueStats.percentageChange}
                     format={(val) => `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`}
                   />
                 </span>
-                {viewMode === 'diario' ? 'em relação a ontem' : monthlyRevenueStats.comparisonText}
+                <span className="truncate">{viewMode === 'diario' ? 'vs ontem' : monthlyRevenueStats.comparisonText}</span>
               </p>
             </div>
-            <div className="bg-gold-400/10 border border-gold-400/20 p-3 rounded-xl text-gold-400">
-              <TrendingUp className="w-6 h-6" />
+            <div className="bg-gold-400/10 border border-gold-400/20 p-2.5 sm:p-3 rounded-xl text-gold-400 shrink-0">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </div>
 
         {/* Card 2: Appointments Card */}
-        <div className="bg-card-bg border border-border-dark p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
+        <div className="bg-card-bg border border-border-dark p-4 sm:p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/5 rounded-full blur-3xl group-hover:bg-gold-400/10 transition-all duration-500"></div>
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm text-gray-400 font-medium">
+          <div className="flex justify-between items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-400 font-semibold uppercase tracking-wider select-none truncate">
                 {viewMode === 'diario' ? 'Agendamentos de Hoje' : 'Agendamentos do Mês'}
               </p>
-              <h3 className="text-3xl font-bold text-white mt-2 tracking-tight">
+              <h3 className="text-2xl sm:text-3xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">
                 <AnimatedNumber
                   value={viewMode === 'diario' ? todayCount : monthlyTotalCount}
                   format={(val) => `${Math.round(val)} Clientes`}
                 />
               </h3>
-              <p className="text-xs text-gray-500 mt-2">
-                <span className="text-gold-400 font-semibold">
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-2.5 flex flex-wrap items-center gap-1.5 leading-none">
+                <span className="text-gold-400 font-bold bg-gold-400/10 border border-gold-400/20 px-1.5 py-0.5 rounded shrink-0">
                   <AnimatedNumber
                     value={viewMode === 'diario' ? todayCompletedCount : monthlyCompletedCount}
                     format={(val) => Math.round(val)}
-                  />
+                  /> c.
                 </span>
-                {' concluídos • '}
-                <span className="text-gray-400 font-semibold">
-                  <AnimatedNumber
-                    value={viewMode === 'diario' ? (todayCount - todayCompletedCount) : (monthlyTotalCount - monthlyCompletedCount)}
-                    format={(val) => Math.round(val)}
-                  />
+                <span className="truncate">
+                  e <span className="text-gray-300 font-semibold">
+                    <AnimatedNumber
+                      value={viewMode === 'diario' ? (todayCount - todayCompletedCount) : (monthlyTotalCount - monthlyCompletedCount)}
+                      format={(val) => Math.round(val)}
+                    /> pend.
+                  </span>
                 </span>
-                {' pendentes'}
               </p>
             </div>
-            <div className="bg-gold-400/10 border border-gold-400/20 p-3 rounded-xl text-gold-400">
-              <CalendarDays className="w-6 h-6" />
+            <div className="bg-gold-400/10 border border-gold-400/20 p-2.5 sm:p-3 rounded-xl text-gold-400 shrink-0">
+              <CalendarDays className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </div>
 
         {/* Card 3: Average Occupancy */}
-        <div className="bg-card-bg border border-border-dark p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
+        <div className="bg-card-bg border border-border-dark p-4 sm:p-6 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/5 rounded-full blur-3xl group-hover:bg-gold-400/10 transition-all duration-500"></div>
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm text-gray-400 font-medium">Ocupação Média das Cadeiras</p>
-              <h3 className="text-3xl font-bold text-white mt-2 tracking-tight">
+          <div className="flex justify-between items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-400 font-semibold uppercase tracking-wider select-none truncate">Ocupação das Cadeiras</p>
+              <h3 className="text-2xl sm:text-3xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">
                 {averageOccupancy.toFixed(1)}%
               </h3>
-              <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                Taxa saudável recomendada: <span className="text-gold-400 font-semibold">75%</span>
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-2.5 flex flex-wrap items-center gap-1.5 leading-none">
+                <span className="text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">
+                  Meta: 75%
+                </span>
+                <span className="truncate">Taxa saudável</span>
               </p>
             </div>
-            <div className="bg-gold-400/10 border border-gold-400/20 p-3 rounded-xl text-gold-400">
-              <Users className="w-6 h-6" />
+            <div className="bg-gold-400/10 border border-gold-400/20 p-2.5 sm:p-3 rounded-xl text-gold-400 shrink-0">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </div>
@@ -311,7 +314,7 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
             </span>
           </div>
 
-          <div ref={chartContainerRef} className="h-80 w-full select-none">
+          <div ref={chartContainerRef} className="h-64 sm:h-80 w-full select-none">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={chartData} 
@@ -339,9 +342,9 @@ export default function Dashboard({ appointments, inventory, dailyRevData, profe
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
-                  width={85}
+                  width={55}
                   tickMargin={8}
-                  tickFormatter={(value) => currencyFormatter.format(value)}
+                  tickFormatter={(value) => value >= 1000 ? `R$ ${(value / 1000).toFixed(0)}k` : `R$ ${value}`}
                 />
                 <Tooltip 
                   cursor={false}

@@ -26,9 +26,9 @@ const PROFESSIONALS = [
 ];
 
 const TIME_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-  '16:00', '16:30', '17:00', '17:30'
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
 ];
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -44,6 +44,7 @@ export default function ClientAgendar({ appointments, setAppointments, planState
   const [selectedTime, setSelectedTime] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [latestBooking, setLatestBooking] = useState(null);
+  const [activePeriod, setActivePeriod] = useState('manha'); // 'manha' | 'tarde' | 'noite'
 
   // Helper to generate next 7 days (Today + 6)
   const getNext7Days = () => {
@@ -448,13 +449,46 @@ export default function ClientAgendar({ appointments, setAppointments, planState
 
           {/* Time Grid selection */}
           {selectedDate && (
-            <div className="space-y-4">
-              <label className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-wider block">
-                2. Horários disponíveis para {selectedDate.label}:
-              </label>
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <label className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-wider block">
+                  2. Horários disponíveis para {selectedDate.label}:
+                </label>
+              </div>
+
+              {/* Period Tabs Selector */}
+              <div className="flex gap-2 p-1 bg-black/40 border border-border-dark rounded-xl select-none w-full max-w-md mx-auto">
+                {[
+                  { id: 'manha', label: 'Manhã', info: '08:00 - 12:00' },
+                  { id: 'tarde', label: 'Tarde', info: '12:00 - 18:00' },
+                  { id: 'noite', label: 'Noite', info: '18:00 - 20:00' }
+                ].map((period) => {
+                  const isActive = activePeriod === period.id;
+                  return (
+                    <button
+                      key={period.id}
+                      type="button"
+                      onClick={() => setActivePeriod(period.id)}
+                      className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all cursor-pointer h-11 ${
+                        isActive
+                          ? 'bg-gold-400 text-black shadow-lg shadow-gold-400/20'
+                          : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <span>{period.label}</span>
+                      <span className={`text-[9px] font-medium opacity-80 ${isActive ? 'text-black/75' : 'text-gray-500'}`}>{period.info}</span>
+                    </button>
+                  );
+                })}
+              </div>
               
-              <div className="grid grid-cols-4 gap-3">
-                {TIME_SLOTS.map((time) => {
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {TIME_SLOTS.filter(time => {
+                  const hour = parseInt(time.split(':')[0], 10);
+                  if (activePeriod === 'manha') return hour < 12;
+                  if (activePeriod === 'tarde') return hour >= 12 && hour < 18;
+                  return hour >= 18;
+                }).map((time) => {
                   const booked = isSlotBooked(time, selectedDate.dateStr, selectedProf.id);
                   const isSelected = selectedTime === time;
 
@@ -462,7 +496,7 @@ export default function ClientAgendar({ appointments, setAppointments, planState
                     return (
                       <div
                         key={time}
-                        className="h-12 md:h-14 flex items-center justify-center rounded-xl border border-border-dark/30 bg-black/10 text-gray-700 text-xs md:text-sm font-semibold text-center select-none cursor-not-allowed"
+                        className="h-12 flex items-center justify-center rounded-xl border border-border-dark/30 bg-black/10 text-gray-700 text-xs sm:text-sm font-semibold text-center select-none cursor-not-allowed"
                       >
                         {time}
                       </div>
@@ -474,7 +508,7 @@ export default function ClientAgendar({ appointments, setAppointments, planState
                       key={time}
                       type="button"
                       onClick={() => handleSelectTime(time)}
-                      className={`h-12 md:h-14 flex items-center justify-center rounded-xl border text-xs md:text-sm font-bold text-center cursor-pointer transition-all duration-200 ${
+                      className={`h-12 flex items-center justify-center rounded-xl border text-xs sm:text-sm font-bold text-center cursor-pointer transition-all duration-200 ${
                         isSelected
                           ? 'bg-emerald-500 text-black border-emerald-500 font-bold shadow-lg shadow-emerald-500/15'
                           : 'bg-black/30 border-emerald-500/20 text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/5'

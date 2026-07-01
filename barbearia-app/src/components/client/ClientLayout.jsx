@@ -22,8 +22,8 @@ export default function ClientLayout({
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   const menuItems = [
-    { id: 'agendar', name: 'Agendar', icon: Calendar },
-    { id: 'assinatura', name: 'Minha Assinatura', icon: CreditCard },
+    { id: 'agendar', name: 'Agendar', mobileName: 'Agendar', icon: Calendar },
+    { id: 'assinatura', name: 'Minha Assinatura', mobileName: 'Assinatura', icon: CreditCard },
   ];
 
   return (
@@ -108,27 +108,30 @@ export default function ClientLayout({
       {/* MOBILE CLIENT BOTTOM NAVIGATION */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card-bg/95 backdrop-blur-md border-t border-border-dark z-50 px-2 py-2 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
         {showRoleDropdown && (
-          <div className="absolute bottom-[65px] left-4 right-4 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
-            <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
-            <button 
-              type="button"
-              onClick={() => {
-                setViewRole('admin');
-                setShowRoleDropdown(false);
-              }}
-              className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
-            >
-              <span>Administrador</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => setShowRoleDropdown(false)}
-              className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
-            >
-              <span>Cliente</span>
-              <span>✓</span>
-            </button>
-          </div>
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setShowRoleDropdown(false)} />
+            <div className="absolute bottom-[65px] left-4 right-4 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
+              <p className="text-[10px] font-bold text-gray-500 px-3.5 pb-2 pt-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
+              <button 
+                type="button"
+                onClick={() => {
+                  setViewRole('admin');
+                  setShowRoleDropdown(false);
+                }}
+                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+              >
+                <span>Administrador</span>
+              </button>
+              <button 
+                type="button"
+                onClick={() => setShowRoleDropdown(false)}
+                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+              >
+                <span>Cliente</span>
+                <span>✓</span>
+              </button>
+            </div>
+          </>
         )}
         <div className="flex justify-around items-center">
           {menuItems.map((item) => {
@@ -138,12 +141,12 @@ export default function ClientLayout({
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`flex flex-col items-center justify-center gap-1 h-12 px-3 rounded-lg transition-all duration-200 active:scale-95 ${
-                  isActive ? 'text-gold-400' : 'text-gray-400'
+                className={`flex-1 flex flex-col items-center justify-center gap-1 h-12 rounded-lg transition-all duration-200 active:scale-95 ${
+                  isActive ? 'text-gold-400 font-bold' : 'text-gray-400 font-medium'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
-                <span className="text-xs font-medium tracking-wide">{item.name}</span>
+                <Icon className={`w-4.5 h-4.5 ${isActive ? 'scale-110 text-gold-400' : ''}`} />
+                <span className="text-[9px] sm:text-[10px] tracking-wide text-center truncate w-full px-1">{item.mobileName || item.name}</span>
               </button>
             );
           })}
@@ -151,12 +154,12 @@ export default function ClientLayout({
           {/* Perfil/Role Switcher Mobile Tab */}
           <button
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className={`flex flex-col items-center justify-center gap-1 h-12 px-3 rounded-lg transition-all duration-200 active:scale-95 ${
-              showRoleDropdown ? 'text-gold-400' : 'text-gray-400'
+            className={`flex-1 flex flex-col items-center justify-center gap-1 h-12 rounded-lg transition-all duration-200 active:scale-95 ${
+              showRoleDropdown ? 'text-gold-400 font-bold' : 'text-gray-400 font-medium'
             }`}
           >
-            <User className={`w-5 h-5 ${showRoleDropdown ? 'scale-110' : ''}`} />
-            <span className="text-xs font-medium tracking-wide">Perfil</span>
+            <User className={`w-4.5 h-4.5 ${showRoleDropdown ? 'scale-110 text-gold-400' : ''}`} />
+            <span className="text-[9px] sm:text-[10px] tracking-wide text-center">Perfil</span>
           </button>
         </div>
       </nav>

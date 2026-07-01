@@ -238,51 +238,51 @@ export default function Funcionarios({ appointments, setAppointments, profession
                 
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl">
                   <p className="text-xs text-gray-500 uppercase font-bold">Fatur. Bruto</p>
-                  <p className="text-lg font-bold text-white mt-1">R$${stats.grossRevenue.toFixed(2).replace('.', ',')}</p>
+                  <p className="text-lg font-bold text-white mt-1">R$ {stats.grossRevenue.toFixed(2).replace('.', ',')}</p>
                 </div>
-
+ 
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl" title="Base de comissão = receita líquida após taxas de cartão">
                   <p className="text-xs text-gray-500 uppercase font-bold">Base Comis.</p>
-                  <p className="text-lg font-bold text-gold-400 mt-1">R$${stats.commissionBase.toFixed(2).replace('.', ',')}</p>
+                  <p className="text-lg font-bold text-gold-400 mt-1">R$ {stats.commissionBase.toFixed(2).replace('.', ',')}</p>
                 </div>
-
+ 
                 <div className="bg-black/30 border border-border-dark/60 p-3 rounded-xl" title="Comissão de 50% sobre o faturamento líquido">
                   <p className="text-xs text-gray-500 uppercase font-bold">Comissão (50%)</p>
-                  <p className="text-lg font-extrabold text-gold-400 mt-1">R$${stats.commission.toFixed(2).replace('.', ',')}</p>
+                  <p className="text-lg font-extrabold text-gold-400 mt-1">R$ {stats.commission.toFixed(2).replace('.', ',')}</p>
                 </div>
-
+ 
               </div>
-
+ 
               {/* Payment Methods Breakdown */}
               <div className="border-t border-border-dark/60 pt-4 space-y-3">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Detalhamento de Recebíveis</p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="flex items-center gap-2 text-xs">
                     <Coins className="w-4 h-4 text-amber-500 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-500 font-semibold">Dinheiro</p>
-                      <p className="font-bold text-white">R$${stats.breakdown.cash.toFixed(2).replace('.', ',')}</p>
+                      <p className="font-bold text-white">R$ {stats.breakdown.cash.toFixed(2).replace('.', ',')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <QrCode className="w-4 h-4 text-emerald-500 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-500 font-semibold">PIX</p>
-                      <p className="font-bold text-white">R$${stats.breakdown.pix.toFixed(2).replace('.', ',')}</p>
+                      <p className="font-bold text-white">R$ {stats.breakdown.pix.toFixed(2).replace('.', ',')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <CreditCard className="w-4 h-4 text-blue-400 shrink-0" />
                     <div>
                       <p className="text-xs text-gray-500 font-semibold">Cartões (Bruto)</p>
-                      <p className="font-bold text-white">R$${stats.breakdown.cards.toFixed(2).replace('.', ',')}</p>
+                      <p className="font-bold text-white">R$ {stats.breakdown.cards.toFixed(2).replace('.', ',')}</p>
                     </div>
                   </div>
                 </div>
                 
                 {stats.cardFees > 0 && (
                   <p className="text-xs text-red-400 font-semibold mt-1">
-                    * Taxas de cartão deduzidas: R$${stats.cardFees.toFixed(2).replace('.', ',')}
+                    * Taxas de cartão deduzidas: R$ {stats.cardFees.toFixed(2).replace('.', ',')}
                   </p>
                 )}
               </div>
@@ -370,27 +370,27 @@ export default function Funcionarios({ appointments, setAppointments, profession
                     <div className="grid grid-cols-3 p-2.5 text-gray-300 border-b border-border-dark/60">
                       <span>Produção Bruta</span>
                       <span className="text-right">{stats.totalCompleted} serviços concluídos</span>
-                      <span className="text-right font-medium text-white">R$${stats.grossRevenue.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-right font-medium text-white">R$ {stats.grossRevenue.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <div className="grid grid-cols-3 p-2.5 text-gray-300 border-b border-border-dark/60">
                       <span>Taxas de Cartão</span>
                       <span className="text-right">Dedução administrativa</span>
-                      <span className="text-right text-red-400">- R$${stats.cardFees.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-right text-red-400">- R$ {stats.cardFees.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <div className="grid grid-cols-3 p-2.5 text-gray-300 border-b border-border-dark/60">
                       <span>Base de Comissão</span>
                       <span className="text-right">Faturamento Líquido</span>
-                      <span className="text-right font-medium text-emerald-400">R$${stats.commissionBase.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-right font-medium text-emerald-400">R$ {stats.commissionBase.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <div className="grid grid-cols-3 p-2.5 text-gold-400 bg-gold-400/5 font-bold">
                       <span>Comissão Final</span>
                       <span className="text-right">Taxa de repasse: 50%</span>
-                      <span className="text-right">R$${stats.commission.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-right">R$ {stats.commission.toFixed(2).replace('.', ',')}</span>
                     </div>
                   </div>
                 </div>
               </div>
-
+ 
               {/* Receipt details if Paid */}
               {isPaid && (
                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl space-y-1.5 text-xs">
@@ -407,7 +407,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   </div>
                 </div>
               )}
-
+ 
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <button
@@ -425,7 +425,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
                     className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-xs font-bold flex items-center justify-center gap-2 btn-primary h-11"
                   >
                     <Wallet className="w-4 h-4" />
-                    Pagar Colaborador (R$${stats.commission.toFixed(2).replace('.', ',')})
+                    Pagar Colaborador (R$ {stats.commission.toFixed(2).replace('.', ',')})
                   </button>
                 ) : (
                   <button

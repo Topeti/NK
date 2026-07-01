@@ -221,6 +221,9 @@ export default function Agendamentos({ appointments, setAppointments, profession
   const todayDayObj = getTodayDayObj();
   const activeDate = todayDayObj.dateStr;
 
+  const [mobileActiveDate, setMobileActiveDate] = useState(activeDate);
+  const [mobileActivePeriod, setMobileActivePeriod] = useState('manha'); // 'manha' | 'tarde' | 'noite'
+
   // Time slots from 08:00 to 20:00
   const timeSlots = [];
   for (let h = 8; h <= 20; h++) {
@@ -429,36 +432,204 @@ export default function Agendamentos({ appointments, setAppointments, profession
 
 
 
-      {/* Conditional Rendering of Views */}
-      {agendaMode === 'agenda' ? (
-        <AgendaTabela
-          dayAppointments={dayAppointments}
-          selectedProf={selectedProf}
-          timeSlots={timeSlots}
-          professionals={professionals}
-          statusStyles={statusStyles}
-          onBookClick={handleBookSlotClick}
-          onToggleStatus={handleToggleStatus}
-          onPaymentClick={(app) => {
-            setSelectedAppForPayment(app);
-            setIsPaymentOpen(true);
-          }}
-        />
-      ) : (
-        <AgendaCalendario
-          appointments={appointments}
-          selectedProf={selectedProf}
-          professionals={professionals}
-          days={currentWeekDays}
-          statusStyles={statusStyles}
-          onBookClick={handleBookSlotClick}
-          onPaymentClick={(app) => {
-            setSelectedAppForPayment(app);
-            setIsPaymentOpen(true);
-          }}
-          onReactivate={handleReactivateAppointment}
-        />
-      )}
+      {/* MOBILE SCHEDULER VIEW (block md:hidden) */}
+      <div className="block md:hidden space-y-5">
+        
+        {/* 1. Seletor de Dia Horizontal */}
+        <div className="space-y-2">
+          <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Selecione o Dia:</label>
+          <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none select-none">
+            {currentWeekDays.map((day) => {
+              const isSelected = mobileActiveDate === day.dateStr;
+              return (
+                <button
+                  key={day.dateStr}
+                  type="button"
+                  onClick={() => setMobileActiveDate(day.dateStr)}
+                  className={`flex flex-col items-center justify-center shrink-0 w-16 h-14 border rounded-xl text-center cursor-pointer transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-gold-400 text-black border-gold-400 font-bold shadow-lg shadow-gold-400/10'
+                      : 'bg-black/30 text-gray-400 border-border-dark hover:text-white'
+                  }`}
+                >
+                  <span className="text-[10px] uppercase font-bold">{day.shortLabel}</span>
+                  <span className="text-xs font-black mt-0.5">{day.formatted}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. Seletor de Período (Abas) */}
+        <div className="flex gap-2 p-1 bg-black/40 border border-border-dark rounded-xl select-none w-full">
+          {[
+            { id: 'manha', label: 'Manhã', info: '08:00 - 12:00' },
+            { id: 'tarde', label: 'Tarde', info: '12:00 - 18:00' },
+            { id: 'noite', label: 'Noite', info: '18:00 - 20:00' }
+          ].map((period) => {
+            const isActive = mobileActivePeriod === period.id;
+            return (
+              <button
+                key={period.id}
+                type="button"
+                onClick={() => setMobileActivePeriod(period.id)}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all cursor-pointer h-11 ${
+                  isActive
+                    ? 'bg-gold-400 text-black shadow-lg shadow-gold-400/20'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <span>{period.label}</span>
+                <span className={`text-[9px] font-medium opacity-80 ${isActive ? 'text-black/75' : 'text-gray-500'}`}>{period.info}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 3. Grid de Horários do Barbeiro */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center text-xs text-gray-400 px-1">
+            <span className="font-semibold uppercase tracking-wider">Horários</span>
+            <span className="font-semibold text-gold-400">
+              {professionals.find(p => p.id === (selectedProf !== 'all' ? selectedProf : (professionals[0]?.id || '')) )?.name || ''}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {timeSlots.filter(time => {
+              const hour = parseInt(time.split(':')[0], 10);
+              if (mobileActivePeriod === 'manha') return hour < 12;
+              if (mobileActivePeriod === 'tarde') return hour >= 12 && hour < 18;
+              return hour >= 18;
+            }).map((slot) => {
+              const activeMobileProf = selectedProf !== 'all' ? selectedProf : (professionals[0]?.id || '');
+              
+              // Find if there is an appointment covering this slot
+              const activeProfAppointments = appointments.filter(
+                app => app.date === mobileActiveDate && app.professionalId === activeMobileProf
+              );
+              
+              const coveringApp = activeProfAppointments.find(app => {
+                const [appH, appM] = app.time.split(':').map(Number);
+                const appStart = appH * 60 + appM;
+                const appEnd = appStart + app.duration;
+                
+                const [slotH, slotM] = slot.split(':').map(Number);
+                const slotMin = slotH * 60 + slotM;
+                
+                return slotMin >= appStart && slotMin < appEnd;
+              });
+
+              if (coveringApp) {
+                const isStartSlot = slot === coveringApp.time;
+                const status = coveringApp.status;
+                const isConcluidoOrFalta = status === 'Concluído' || status === 'Não Compareceu';
+                const isCancelado = status === 'Cancelado';
+
+                const handleSlotClick = () => {
+                  if (isConcluidoOrFalta) return;
+                  if (isCancelado) {
+                    handleReactivateAppointment(coveringApp.id);
+                  } else {
+                    setSelectedAppForPayment(coveringApp);
+                    setIsPaymentOpen(true);
+                  }
+                };
+
+                if (!isStartSlot) {
+                  // Covered slot
+                  return (
+                    <div
+                      key={slot}
+                      className="h-14 flex items-center justify-between rounded-xl px-4 bg-black/10 border border-border-dark/30 text-gray-600 text-xs font-medium select-none"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold">{slot}</span>
+                        <span>•</span>
+                        <span className="italic">Ocupado ({coveringApp.clientName})</span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Main booking slot chip
+                let statusColorClass = 'border-blue-500/30 text-blue-400 bg-blue-500/10';
+                if (status === 'Confirmado') statusColorClass = 'border-yellow-500/30 text-yellow-500 bg-yellow-500/10';
+                if (status === 'Concluído') statusColorClass = 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10';
+                if (status === 'Cancelado') statusColorClass = 'border-red-500/30 text-red-500 bg-red-500/10';
+                if (status === 'Não Compareceu') statusColorClass = 'border-rose-500/30 text-rose-400 bg-rose-500/10';
+
+                return (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={handleSlotClick}
+                    className={`h-14 flex items-center justify-between rounded-xl px-4 border text-left cursor-pointer transition-all duration-150 active:scale-98 ${statusColorClass}`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="font-bold text-white shrink-0">{slot}</span>
+                      <span className="shrink-0">•</span>
+                      <span className="font-extrabold truncate text-white">{coveringApp.clientName}</span>
+                      <span className="text-[10px] opacity-75 truncate hidden xs:inline">({coveringApp.service})</span>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider shrink-0">{status}</span>
+                  </button>
+                );
+              }
+
+              // Empty slot (Livre)
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => handleBookSlotClick(slot, activeMobileProf, mobileActiveDate)}
+                  className="h-14 flex items-center justify-between rounded-xl px-4 border border-dashed border-border-dark bg-black/30 hover:border-gold-400/50 hover:bg-white/5 text-xs text-gray-400 font-bold transition-all duration-150 active:scale-98 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-gold-400">{slot}</span>
+                    <span>•</span>
+                    <span className="font-medium text-gray-400">Livre</span>
+                  </div>
+                  <span className="text-gold-400 text-base font-extrabold">+</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* DESKTOP SCHEDULER VIEW */}
+      <div className="hidden md:block">
+        {agendaMode === 'agenda' ? (
+          <AgendaTabela
+            dayAppointments={dayAppointments}
+            selectedProf={selectedProf}
+            timeSlots={timeSlots}
+            professionals={professionals}
+            statusStyles={statusStyles}
+            onBookClick={handleBookSlotClick}
+            onToggleStatus={handleToggleStatus}
+            onPaymentClick={(app) => {
+              setSelectedAppForPayment(app);
+              setIsPaymentOpen(true);
+            }}
+          />
+        ) : (
+          <AgendaCalendario
+            appointments={appointments}
+            selectedProf={selectedProf}
+            professionals={professionals}
+            days={currentWeekDays}
+            statusStyles={statusStyles}
+            onBookClick={handleBookSlotClick}
+            onPaymentClick={(app) => {
+              setSelectedAppForPayment(app);
+              setIsPaymentOpen(true);
+            }}
+            onReactivate={handleReactivateAppointment}
+          />
+        )}
+      </div>
 
       {/* MODAL 1: Payment Checkout Modal */}
       <BaixaPagamento

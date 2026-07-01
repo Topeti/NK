@@ -110,71 +110,82 @@ export default function Assinatura({ subClients, setSubClients }) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         
         {/* Metric 1: Active */}
-        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-gold-400/30 transition-all duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Ativas</p>
-              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalActive} Planos</h3>
-              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Funcionando
-              </span>
+        <div className="bg-[#181818] border border-border-dark/60 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/[0.02] rounded-full blur-2xl group-hover:bg-emerald-500/[0.04] transition-all duration-500"></div>
+          <div className="flex justify-between items-start gap-2 relative z-10">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs text-gray-500 font-black uppercase tracking-wider select-none truncate">Ativas</p>
+              <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">{totalActive} Planos</h3>
+              <div className="mt-2.5 sm:mt-3">
+                <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 select-none">
+                  Funcionando
+                </span>
+              </div>
             </div>
-            <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-emerald-400">
-              <CheckCircle2 className="w-5 h-5" />
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-2 sm:p-2.5 rounded-xl text-emerald-400 shrink-0 shadow-inner">
+              <CheckCircle2 className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
           </div>
         </div>
 
         {/* Metric 2: Failures */}
-        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-red-500/30 transition-all duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Falha no Pagamento</p>
-              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalFailed} Contas</h3>
-              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
-                Requer Atenção
-              </span>
+        <div className="bg-[#181818] border border-border-dark/60 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-rose-500/30 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/[0.02] rounded-full blur-2xl group-hover:bg-rose-500/[0.04] transition-all duration-500"></div>
+          <div className="flex justify-between items-start gap-2 relative z-10">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs text-gray-500 font-black uppercase tracking-wider select-none truncate">Falha no Pagamento</p>
+              <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">{totalFailed} Contas</h3>
+              <div className="mt-2.5 sm:mt-3">
+                <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 select-none">
+                  Requer Atenção
+                </span>
+              </div>
             </div>
-            <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl text-red-400">
-              <AlertTriangle className="w-5 h-5" />
+            <div className="bg-rose-500/10 border border-rose-500/20 p-2 sm:p-2.5 rounded-xl text-red-400 shrink-0 shadow-inner">
+              <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
           </div>
         </div>
 
         {/* Metric 3: Canceled */}
-        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-border-dark transition-all duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Canceladas</p>
-              <h3 className="text-2xl font-bold text-white mt-2 tracking-tight">{totalCanceled} Contas</h3>
-              <span className="inline-block text-xs font-bold mt-2 px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
-                Inativas
-              </span>
+        <div className="bg-[#181818] border border-border-dark/60 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.005] rounded-full blur-2xl group-hover:bg-white/[0.02] transition-all duration-500"></div>
+          <div className="flex justify-between items-start gap-2 relative z-10">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs text-gray-500 font-black uppercase tracking-wider select-none truncate">Canceladas</p>
+              <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5 sm:mt-2 tracking-tight truncate">{totalCanceled} Contas</h3>
+              <div className="mt-2.5 sm:mt-3">
+                <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/5 text-gray-400 border border-white/10 select-none">
+                  Inativas
+                </span>
+              </div>
             </div>
-            <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl text-gray-400">
-              <XCircle className="w-5 h-5" />
+            <div className="bg-white/5 border border-white/10 p-2 sm:p-2.5 rounded-xl text-gray-400 shrink-0 shadow-inner">
+              <XCircle className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
           </div>
         </div>
 
         {/* Metric 4: MRR */}
-        <div className="bg-card-bg border border-border-dark p-5 rounded-2xl relative overflow-hidden group hover:border-gold-400/50 transition-all duration-300">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gold-400/5 rounded-full blur-2xl"></div>
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">MRR (Receita Recorrente)</p>
-              <h3 className="text-2xl font-black text-gold-400 mt-2 tracking-tight">
+        <div className="bg-[#181818] border border-border-dark/60 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-gold-400/30 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gold-400/[0.02] rounded-full blur-2xl group-hover:bg-gold-400/[0.04] transition-all duration-500"></div>
+          <div className="flex justify-between items-start gap-2 relative z-10">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs text-gray-500 font-black uppercase tracking-wider select-none truncate">MRR (Rec. Recorrente)</p>
+              <h3 className="text-lg sm:text-xl font-black text-gold-400 mt-1.5 sm:mt-2 tracking-tight truncate">
                 {currencyFormatter.format(mrr)}
               </h3>
-              <p className="text-xs text-gray-500 mt-2">
-                Faturamento mensal garantido
-              </p>
+              <div className="mt-2.5 sm:mt-3">
+                <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-gold-400/10 text-gold-400 border border-gold-400/20 select-none">
+                  Faturamento
+                </span>
+              </div>
             </div>
-            <div className="bg-gold-400/10 border border-gold-400/20 p-2.5 rounded-xl text-gold-400">
-              <TrendingUp className="w-5 h-5" />
+            <div className="bg-gold-400/10 border border-gold-400/20 p-2 sm:p-2.5 rounded-xl text-gold-400 shrink-0 shadow-inner">
+              <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
           </div>
         </div>
@@ -201,52 +212,56 @@ export default function Assinatura({ subClients, setSubClients }) {
           <div className="flex flex-wrap gap-2 select-none">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer h-10 flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
                 filterStatus === 'all'
-                  ? 'bg-gold-400 text-black border-gold-400'
-                  : 'bg-black/30 text-gray-400 border-border-dark hover:text-white hover:bg-white/5'
+                  ? 'bg-gold-400/10 border-gold-400 text-gold-400 shadow-[0_0_15px_rgba(212,168,67,0.15)] font-black'
+                  : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
               }`}
             >
               Todas ({subClients.length})
             </button>
             <button
               onClick={() => setFilterStatus('Ativa')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
                 filterStatus === 'Ativa'
-                  ? 'bg-emerald-500 text-black border-emerald-500'
-                  : 'bg-black/30 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/5'
+                  ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] font-black'
+                  : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Ativa' ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
               Ativas ({totalActive})
             </button>
             <button
               onClick={() => setFilterStatus('Falha no pagamento')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
                 filterStatus === 'Falha no pagamento'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-black/30 text-red-400 border-red-500/20 hover:bg-red-500/5'
+                  ? 'bg-rose-500/10 border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.15)] font-black'
+                  : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
               }`}
             >
-              Falha no Pgto ({totalFailed})
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Falha no pagamento' ? 'bg-rose-400 animate-pulse' : 'bg-gray-500'}`} />
+              Falhas ({totalFailed})
             </button>
             <button
               onClick={() => setFilterStatus('Cancelada')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
                 filterStatus === 'Cancelada'
-                  ? 'bg-gray-500 text-white border-gray-500'
-                  : 'bg-black/30 text-gray-400 border-border-dark hover:text-white hover:bg-white/5'
+                  ? 'bg-white/10 border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] font-black'
+                  : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Cancelada' ? 'bg-white' : 'bg-gray-500'}`} />
               Canceladas ({totalCanceled})
             </button>
             <button
               onClick={() => setFilterStatus('Pendente')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer flex items-center gap-1.5 active:scale-97 hover:scale-[1.02] ${
                 filterStatus === 'Pendente'
-                  ? 'bg-yellow-500 text-black border-yellow-500'
-                  : 'bg-black/30 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/5'
+                  ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)] font-black'
+                  : 'bg-black/40 text-gray-500 border-border-dark hover:text-gray-300 hover:border-white/10'
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filterStatus === 'Pendente' ? 'bg-amber-400 animate-pulse' : 'bg-gray-500'}`} />
               Pendentes ({totalPending})
             </button>
           </div>
@@ -346,38 +361,41 @@ export default function Assinatura({ subClients, setSubClients }) {
           return (
             <div 
               key={client.id}
-              className="bg-card-bg border border-border-dark p-4 rounded-xl flex flex-col justify-between space-y-4 card-premium"
+              className="bg-[#181818] border border-border-dark p-5 rounded-2xl flex flex-col justify-between space-y-4 card-premium relative overflow-hidden group hover:border-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
             >
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-xs font-bold text-gold-400 select-none shrink-0">
+              {/* Card decorative mesh */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-full blur-2xl group-hover:bg-white/[0.03] transition-all duration-500"></div>
+              
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-xs font-black text-gold-400 select-none shrink-0 shadow-inner">
                     {client.initials}
                   </div>
-                  <div>
-                    <h5 className="font-bold text-white text-sm">{client.name}</h5>
-                    <p className="text-xs text-gray-500">{client.email}</p>
+                  <div className="min-w-0">
+                    <h5 className="font-extrabold text-white text-sm truncate leading-tight">{client.name}</h5>
+                    <p className="text-[10px] text-gray-500 truncate mt-0.5">{client.email}</p>
                   </div>
                 </div>
                 
-                <span className={`inline-block text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase border shrink-0 ${badgeInfo.classes}`}>
+                <span className={`inline-block text-[9px] font-black px-2.5 py-1 rounded-full uppercase border shrink-0 tracking-wider ${badgeInfo.classes}`}>
                   {badgeInfo.label}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs border-t border-border-dark/40 pt-3">
+              <div className="grid grid-cols-2 gap-3 text-xs bg-black/25 border border-border-dark/40 rounded-xl p-3">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-bold">Plano</p>
-                  <p className="text-gray-200 mt-0.5 font-semibold">{client.planName}</p>
+                  <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Plano</p>
+                  <p className="text-gray-200 mt-0.5 font-bold text-xs truncate">{client.planName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-bold">Valor</p>
-                  <p className="text-white mt-0.5 font-bold">{currencyFormatter.format(client.planPrice)}</p>
+                  <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Mensalidade</p>
+                  <p className="text-gold-400 mt-0.5 font-black text-xs">{currencyFormatter.format(client.planPrice)}</p>
                 </div>
-                <div className="col-span-2">
-                  <p className="text-xs text-gray-500 uppercase font-bold">
-                    {client.status === 'Cancelada' ? 'Cancelamento' : 'Próxima Cobrança'}
+                <div className="col-span-2 border-t border-border-dark/30 pt-2 mt-1">
+                  <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">
+                    {client.status === 'Cancelada' ? 'Cancelamento' : 'Próximo Vencimento'}
                   </p>
-                  <p className={`mt-0.5 font-medium ${client.status === 'Cancelada' ? 'text-red-400/80' : 'text-gray-300'}`}>
+                  <p className={`mt-0.5 font-bold text-xs ${client.status === 'Cancelada' ? 'text-rose-400' : 'text-gray-300'}`}>
                     {client.status === 'Cancelada' ? client.cancellationDate : client.nextBilling || '-'}
                   </p>
                 </div>
@@ -386,7 +404,7 @@ export default function Assinatura({ subClients, setSubClients }) {
               <button
                 type="button"
                 onClick={() => handleOpenDetails(client)}
-                className="w-full py-2.5 bg-black/30 border border-border-dark text-[11px] font-bold rounded-lg text-gold-400 flex items-center justify-center gap-1.5 hover:text-white hover:bg-white/5 transition-all duration-200 btn-secondary cursor-pointer"
+                className="w-full py-3 bg-gold-400/5 hover:bg-gold-400/10 border border-gold-400/20 hover:border-gold-400/40 text-xs font-bold rounded-xl text-gold-400 flex items-center justify-center gap-1.5 active:scale-98 transition-all duration-200 cursor-pointer h-11"
               >
                 <span>Ver detalhes da assinatura</span>
               </button>
