@@ -31,7 +31,11 @@ export default function Assinatura({ subClients, setSubClients }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDetailRender, setIsDetailRender] = useState(false);
   const [isDetailExiting, setIsDetailExiting] = useState(false);
-
+ 
+  // Toast notification state
+  const [showToast, setShowToast] = useState(false);
+  const [toastClient, setToastClient] = useState('');
+ 
   // Handle modal animation hooks
   useEffect(() => {
     if (isDetailOpen) {
@@ -45,18 +49,23 @@ export default function Assinatura({ subClients, setSubClients }) {
       return () => clearTimeout(timer);
     }
   }, [isDetailOpen, isDetailRender]);
-
+ 
   const handleOpenDetails = (client) => {
     setSelectedClient(client);
     setIsDetailOpen(true);
   };
-
+ 
   const handleCloseDetails = () => {
     setIsDetailOpen(false);
   };
-
+ 
   const handleNotifyClient = (clientName) => {
-    alert(`Notificação enviada com sucesso para ${clientName}!`);
+    setToastClient(clientName);
+    setShowToast(true);
+    const timer = setTimeout(() => {
+      setShowToast(false);
+    }, 3500);
+    return () => clearTimeout(timer);
   };
 
   // 1. Calculate dynamic statistics
@@ -584,7 +593,20 @@ export default function Assinatura({ subClients, setSubClients }) {
           </div>
         );
       })()}
-
+ 
+      {/* Toast de Sucesso */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-[100] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-2xl flex items-center gap-3.5 backdrop-blur-md shadow-[0_4px_25px_rgba(16,185,129,0.2)] animate-backdrop-in max-w-xs">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 animate-bounce" />
+          <div className="text-xs">
+            <p className="font-black uppercase tracking-wider text-[10px]">Aviso Enviado</p>
+            <p className="text-gray-300 mt-0.5 font-bold leading-normal">
+              Notificação de cobrança enviada para <strong className="text-white">{toastClient}</strong> via WhatsApp com sucesso!
+            </p>
+          </div>
+        </div>
+      )}
+ 
     </div>
   );
 }
