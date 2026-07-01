@@ -374,7 +374,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
         {/* Controls: Segmented Toggle + Dropdown */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
           {/* Segmented Control */}
-          <div className="bg-card-bg border border-border-dark p-1 rounded-xl flex gap-1 shadow-inner select-none self-center sm:self-auto relative h-10 w-48 sm:w-56">
+          <div className="hidden md:flex bg-card-bg border border-border-dark p-1 rounded-xl gap-1 shadow-inner select-none relative h-10 w-56 shrink-0">
             {/* Sliding Pill */}
             <div 
               className={`absolute top-1 bottom-1 left-1 w-[calc(50%-6px)] bg-gold-400 rounded-lg shadow-lg shadow-gold-400/20 transition-transform duration-300 ease-out ${

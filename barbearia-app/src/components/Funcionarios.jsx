@@ -193,18 +193,18 @@ export default function Funcionarios({ appointments, setAppointments, profession
             <div key={prof.id} className="bg-card-bg border border-border-dark p-6 rounded-2xl flex flex-col justify-between card-premium">
               
               {/* Header Info */}
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gold-400/10 border border-gold-400/30 flex items-center justify-center font-bold text-gold-400 text-lg shadow-inner">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 sm:gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-gold-400/10 border border-gold-400/30 flex items-center justify-center font-bold text-gold-400 text-lg shadow-inner shrink-0">
                     {prof.initials}
                   </div>
-                  <div>
-                    <h4 className="text-base font-bold text-white tracking-tight">{prof.name}</h4>
-                    <p className="text-xs text-gray-400">{prof.specialty || 'Barbeiro'}</p>
+                  <div className="min-w-0">
+                    <h4 className="text-base font-bold text-white tracking-tight truncate">{prof.name}</h4>
+                    <p className="text-xs text-gray-400 truncate">{prof.specialty || 'Barbeiro'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border ${
+                <div className="flex items-center gap-3 shrink-0 self-end sm:self-start">
+                  <span className={`text-[10px] sm:text-xs font-extrabold px-2.5 py-1 rounded-full uppercase border ${
                     isPaid 
                       ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
                       : isDraft
