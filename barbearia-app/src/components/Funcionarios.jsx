@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Users,
   DollarSign,
@@ -18,6 +18,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
   const [selectedProf, setSelectedProf] = useState(null);
   const [payrollStatus, setPayrollStatus] = useState({}); // profId -> 'draft' | 'paid'
   const [receiptNumber, setReceiptNumber] = useState({}); // profId -> number
+  const payrollRef = useRef(null);
 
   // Add Professional Modal State
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -149,6 +150,10 @@ export default function Funcionarios({ appointments, setAppointments, profession
     if (!payrollStatus[profId]) {
       setPayrollStatus(prev => ({ ...prev, [profId]: 'draft' }));
     }
+    // Scroll to payroll section after state settles
+    setTimeout(() => {
+      payrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   const handlePaySalary = (profId) => {
@@ -311,7 +316,7 @@ export default function Funcionarios({ appointments, setAppointments, profession
         const isPaid = payrollStatus[selectedProf] === 'paid';
 
         return (
-          <div className="bg-card-bg border border-border-dark rounded-2xl overflow-hidden max-w-2xl mx-auto shadow-2xl animate-modal-in">
+          <div ref={payrollRef} className="scroll-mt-4 bg-card-bg border border-border-dark rounded-2xl overflow-hidden max-w-2xl mx-auto shadow-2xl animate-modal-in">
 
             {/* Ticket Header */}
             <div className="p-6 bg-black/40 border-b border-border-dark flex justify-between items-center relative">
@@ -419,10 +424,13 @@ export default function Funcionarios({ appointments, setAppointments, profession
                   <button
                     type="button"
                     onClick={() => handlePaySalary(prof.id)}
-                    className="flex-1 py-3 px-4 rounded-xl bg-gold-400 text-black text-xs font-bold flex items-center justify-center gap-2 btn-primary h-11"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-gold-400 text-black text-xs font-bold flex flex-col items-center justify-center gap-0.5 btn-primary min-h-[48px]"
                   >
-                    <Wallet className="w-4 h-4" />
-                    Pagar Colaborador (R$ {stats.commission.toFixed(2).replace('.', ',')})
+                    <span className="flex items-center gap-1.5">
+                      <Wallet className="w-3.5 h-3.5 shrink-0" />
+                      <span>Pagar Colaborador</span>
+                    </span>
+                    <span className="text-[10px] font-black opacity-80">R$ {stats.commission.toFixed(2).replace('.', ',')}</span>
                   </button>
                 ) : (
                   <button
