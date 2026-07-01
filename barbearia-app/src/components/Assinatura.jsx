@@ -204,7 +204,7 @@ export default function Assinatura({ subClients, setSubClients }) {
               placeholder="Buscar cliente ou plano..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 focus:outline-none"
+              className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-2.5 text-base md:text-sm text-white input-premium placeholder-gray-600 focus:outline-none"
             />
           </div>
 

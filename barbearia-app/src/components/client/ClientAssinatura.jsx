@@ -519,7 +519,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardNumber}
                       onChange={handleCardNumberChange}
                       placeholder="•••• •••• •••• ••••"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-3 text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl pl-10 pr-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -533,7 +533,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
                     placeholder="EX: JOÃO A SILVA"
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 focus:outline-none"
                   />
                 </div>
 
@@ -547,7 +547,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardExpiry}
                       onChange={handleExpiryChange}
                       placeholder="MM/AA"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -558,7 +558,7 @@ export default function ClientAssinatura({ subClients, setSubClients, planState,
                       value={cardCvv}
                       onChange={handleCvvChange}
                       placeholder="•••"
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-xs text-white input-premium placeholder-gray-600 text-center focus:outline-none"
                     />
                   </div>
                 </div>

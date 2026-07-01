@@ -294,7 +294,7 @@ export default function Estoque({ inventory, setInventory }) {
                 placeholder="Buscar produto..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white input-premium placeholder-gray-600 transition-all duration-200 outline-none"
+                className="w-full bg-black/40 border border-border-dark hover:border-gold-400/50 focus:border-gold-400 rounded-xl pl-10 pr-4 py-2.5 text-base md:text-sm text-white input-premium placeholder-gray-600 transition-all duration-200 outline-none"
               />
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function Estoque({ inventory, setInventory }) {
                   placeholder="Qtd"
                   value={inputVal}
                   onChange={(e) => setAddQtyInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
-                  className="w-16 h-10 bg-black/40 border border-border-dark rounded-xl px-2 text-xs text-center text-white input-premium placeholder-gray-600 focus:outline-none"
+                  className="w-16 h-10 bg-black/40 border border-border-dark rounded-xl px-2 text-base md:text-xs text-center text-white input-premium placeholder-gray-600 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -516,7 +516,7 @@ export default function Estoque({ inventory, setInventory }) {
                     placeholder="Ex: Cera Modeladora Strong"
                     value={newProduct.name}
                     onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
                   />
                   <label htmlFor="prodName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Item</label>
                 </div>
@@ -547,11 +547,11 @@ export default function Estoque({ inventory, setInventory }) {
                       placeholder="Ex: 10"
                       value={newProduct.currentQuantity}
                       onChange={(e) => setNewProduct(prev => ({ ...prev, currentQuantity: e.target.value }))}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
                     />
                     <label htmlFor="prodQty" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Inicial</label>
                   </div>
-
+ 
                   {/* Minimum Quantity Input */}
                   <div className="flex flex-col-reverse gap-1.5">
                     <input
@@ -562,7 +562,7 @@ export default function Estoque({ inventory, setInventory }) {
                       placeholder="Ex: 5"
                       value={newProduct.minimumQuantity}
                       onChange={(e) => setNewProduct(prev => ({ ...prev, minimumQuantity: e.target.value }))}
-                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer text-left"
+                      className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer text-left"
                     />
                     <label htmlFor="prodMin" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Estoque Mínimo</label>
                   </div>

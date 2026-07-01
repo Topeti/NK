@@ -681,7 +681,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
                     placeholder="Ex: João Silva"
                     value={bookDetails.clientName}
                     onChange={(e) => setBookDetails(prev => ({ ...prev, clientName: e.target.value }))}
-                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer"
+                    className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-base md:text-sm text-white focus:outline-none input-premium peer"
                   />
                   <label htmlFor="clientName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Cliente</label>
                 </div>
