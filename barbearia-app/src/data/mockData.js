@@ -421,3 +421,31 @@ export const monthlyAppointmentsStats = {
   completedBase: 120,
   pendingBase: 18
 };
+
+export const initialGoals = [
+  { id: 'g1', level: 'general', type: 'revenue', value: 8000, period: 'weekly' },
+  { id: 'g2', level: 'general', type: 'occupancy', value: 75, period: 'weekly' },
+  { id: 'g3', level: 'employee', professionalId: 'nicolas', type: 'appointments', value: 12, period: 'weekly' },
+  { id: 'g4', level: 'employee', professionalId: 'gustavo', type: 'revenue', value: 600, period: 'weekly' }
+];
+
+export const initialChecklistTasks = [
+  { id: 't1', text: 'Limpar e higienizar cadeiras e bancadas', assignedTo: 'all', completedBy: {} },
+  { id: 't2', text: 'Organizar ferramentas de corte e toalhas', assignedTo: 'all', completedBy: {} },
+  { id: 't3', text: 'Repor produtos de uso diário nas bancadas', assignedTo: 'all', completedBy: {} },
+  { id: 't4', text: 'Efetuar contagem física do estoque crítico', assignedTo: 'nicolas', completedBy: {} },
+  { id: 't5', text: 'Limpar pia e área de lavagem de cabelos', assignedTo: 'gustavo', completedBy: {} }
+];
+
+export const initialChecklistHistory = [
+  { date: '2026-07-07', employeeId: 'nicolas', taskId: 't1', taskText: 'Limpar e higienizar cadeiras e bancadas', completed: true },
+  { date: '2026-07-07', employeeId: 'nicolas', taskId: 't2', taskText: 'Organizar ferramentas de corte e toalhas', completed: true },
+  { date: '2026-07-07', employeeId: 'gustavo', taskId: 't1', taskText: 'Limpar e higienizar cadeiras e bancadas', completed: true },
+  { date: '2026-07-07', employeeId: 'gustavo', taskId: 't3', taskText: 'Repor produtos de uso diário nas bancadas', completed: true },
+  { date: '2026-07-07', employeeId: 'gustavo', taskId: 't5', taskText: 'Limpar pia e área de lavagem de cabelos', completed: true }
+];
+
+export const initialMissHistory = [
+  { id: 'm1', clientName: 'Felipe Costa', date: '2026-07-07', time: '11:00', professionalId: 'nicolas' }
+];
+

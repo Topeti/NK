@@ -15,7 +15,9 @@ export default function ClientLayout({
   subClients, 
   setSubClients, 
   appointments, 
-  setAppointments 
+  setAppointments,
+  missHistory,
+  professionals = []
 }) {
   const [activeTab, setActiveTab] = useState('agendar'); // 'agendar' or 'assinatura'
   const [planState, setPlanState] = useState('B'); // 'A' (no plan), 'B' (active plan), 'C' (payment failure)
@@ -74,18 +76,36 @@ export default function ClientLayout({
           <div className="relative">
             {showRoleDropdown && (
               <div className="absolute bottom-[70px] left-2 right-2 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
-                <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
+                <p className="text-xs font-bold text-gray-500 px-3 pb-1.5 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
                 <button 
                   type="button"
-                  onClick={() => setViewRole('admin')}
+                  onClick={() => {
+                    setViewRole('admin');
+                    setShowRoleDropdown(false);
+                  }}
                   className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
                 >
                   <span>Administrador</span>
                 </button>
+
+                {professionals.map((prof) => (
+                  <button 
+                    key={prof.id}
+                    type="button"
+                    onClick={() => {
+                      setViewRole(`employee-${prof.id}`);
+                      setShowRoleDropdown(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                  >
+                    <span>Barbeiro: {prof.name}</span>
+                  </button>
+                ))}
+
                 <button 
                   type="button"
                   onClick={() => setShowRoleDropdown(false)}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between border-t border-border-dark/40 cursor-pointer"
                 >
                   <span>Cliente</span>
                   <span>✓</span>
@@ -150,10 +170,25 @@ export default function ClientLayout({
               >
                 <span>Administrador</span>
               </button>
+
+              {professionals.map((prof) => (
+                <button 
+                  key={prof.id}
+                  type="button"
+                  onClick={() => {
+                    setViewRole(`employee-${prof.id}`);
+                    setShowRoleDropdown(false);
+                  }}
+                  className="w-full text-left px-3.5 py-3 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                >
+                  <span>Barbeiro: {prof.name}</span>
+                </button>
+              ))}
+
               <button 
                 type="button"
                 onClick={() => setShowRoleDropdown(false)}
-                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between border-t border-border-dark/40 cursor-pointer"
               >
                 <span>Cliente</span>
                 <span>✓</span>

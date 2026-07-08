@@ -123,9 +123,16 @@ function CustomDropdown({ label, options, value, onChange }) {
   );
 }
 
-export default function Agendamentos({ appointments, setAppointments, professionals }) {
+export default function Agendamentos({ 
+  appointments, 
+  setAppointments, 
+  professionals,
+  missHistory = [],
+  setMissHistory
+}) {
   const [agendaMode, setAgendaMode] = useState('calendario'); // 'agenda' | 'calendario' (default is 'calendario')
   const [selectedProf, setSelectedProf] = useState('all'); // 'all', 'nicolas', 'gustavo'
+  const [bookError, setBookError] = useState(null);
 
   useEffect(() => {
     if (selectedProf !== 'all') {
@@ -249,6 +256,18 @@ export default function Agendamentos({ appointments, setAppointments, profession
     setAppointments(prev => prev.map(app => {
       if (app.id === id) {
         if (method === 'Não Compareceu') {
+          // Record miss history if not already registered
+          const exist = missHistory.some(m => m.id === `miss-${app.id}`);
+          if (!exist) {
+            const newMiss = {
+              id: `miss-${app.id}`,
+              clientName: app.clientName,
+              date: app.date,
+              time: app.time,
+              professionalId: app.professionalId
+            };
+            setMissHistory(prev => [...prev, newMiss]);
+          }
           return {
             ...app,
             status: 'Não Compareceu',
@@ -308,6 +327,7 @@ export default function Agendamentos({ appointments, setAppointments, profession
 
   // Handle book new appointment click
   const handleBookSlotClick = (time, profId, dateVal) => {
+    setBookError(null);
     setBookDetails({
       clientName: '',
       serviceId: 'corte',
@@ -320,16 +340,31 @@ export default function Agendamentos({ appointments, setAppointments, profession
 
   const handleBookConfirm = (e) => {
     e.preventDefault();
-    if (!bookDetails.clientName.trim()) return;
+    const nameInput = bookDetails.clientName.trim();
+    if (!nameInput) return;
+
+    const targetDate = bookDetails.date || activeDate;
+
+    // Check if the client is blocked for today's date
+    const blockedRecord = missHistory.find(m => 
+      m.clientName.toLowerCase() === nameInput.toLowerCase() && 
+      m.date === targetDate
+    );
+
+    if (blockedRecord) {
+      const profObj = professionals.find(p => p.id === blockedRecord.professionalId);
+      const profName = profObj ? profObj.name : 'um barbeiro';
+      setBookError(`Falta registrada hoje às ${blockedRecord.time} com o barbeiro ${profName}. Agendamento bloqueado.`);
+      return;
+    }
 
     const selectedService = services.find(s => s.id === bookDetails.serviceId);
-    const targetDate = bookDetails.date || activeDate;
     const allDaysList = agendaMode === 'calendario' ? currentWeekDays : [todayDayObj];
     const targetDayObj = allDaysList.find(d => d.dateStr === targetDate) || todayDayObj;
 
     const newApp = {
       id: Date.now(),
-      clientName: bookDetails.clientName,
+      clientName: nameInput,
       service: selectedService.name,
       price: selectedService.price,
       duration: selectedService.duration,
@@ -671,11 +706,20 @@ export default function Agendamentos({ appointments, setAppointments, profession
                     id="clientName"
                     placeholder="Ex: João Silva"
                     value={bookDetails.clientName}
-                    onChange={(e) => setBookDetails(prev => ({ ...prev, clientName: e.target.value }))}
+                    onChange={(e) => {
+                      setBookError(null);
+                      setBookDetails(prev => ({ ...prev, clientName: e.target.value }));
+                    }}
                     className="w-full bg-black/40 border border-border-dark rounded-xl px-4 py-3 text-sm text-white focus:outline-none input-premium peer"
                   />
                   <label htmlFor="clientName" className="text-xs font-bold text-gray-400 uppercase transition-all duration-200 peer-focus:text-gold-400 peer-focus:-translate-y-[2px]">Nome do Cliente</label>
                 </div>
+
+                {bookError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-bold text-red-400 animate-pulse">
+                    {bookError}
+                  </div>
+                )}
 
                 {/* Professional Select */}
                 <div className="flex flex-col gap-1.5">

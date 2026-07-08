@@ -36,7 +36,12 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
-export default function ClientAgendar({ appointments, setAppointments, planState }) {
+export default function ClientAgendar({ 
+  appointments, 
+  setAppointments, 
+  planState,
+  missHistory = []
+}) {
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedProf, setSelectedProf] = useState(null);
@@ -593,11 +598,36 @@ export default function ClientAgendar({ appointments, setAppointments, planState
               </div>
             )}
 
+            {/* Blocked message if client missed appointment today */}
+            {(() => {
+              const blockedRecord = missHistory.find(m => 
+                m.clientName.toLowerCase() === 'joão silva' && 
+                m.date === selectedDate.dateStr
+              );
+
+              if (blockedRecord) {
+                return (
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs md:text-sm text-red-400 leading-normal text-left space-y-1.5">
+                    <p className="font-bold uppercase tracking-wider text-[10px] text-red-500">Agendamento Bloqueado</p>
+                    <p className="text-gray-300">
+                      Você faltou ao seu agendamento hoje às <strong>{blockedRecord.time}</strong> e está temporariamente suspenso para novas reservas hoje.
+                    </p>
+                    <p className="text-gray-500 text-[10px]">O bloqueio expira automaticamente amanhã.</p>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {/* Confirm button */}
             <button
               type="button"
+              disabled={!!missHistory.find(m => 
+                m.clientName.toLowerCase() === 'joão silva' && 
+                m.date === selectedDate.dateStr
+              )}
               onClick={handleConfirmBooking}
-              className="w-full h-12 md:h-14 bg-emerald-500 text-black text-xs md:text-sm font-bold rounded-xl hover:bg-emerald-600 transition-colors btn-primary uppercase tracking-wider cursor-pointer flex items-center justify-center gap-1.5"
+              className="w-full h-12 md:h-14 bg-emerald-500 text-black text-xs md:text-sm font-bold rounded-xl hover:bg-emerald-600 transition-colors btn-primary uppercase tracking-wider cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirmar Agendamento
             </button>

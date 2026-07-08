@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Scissors, 
@@ -7,21 +7,44 @@ import {
   Users, 
   Package, 
   CreditCard,
-  User
+  User,
+  Target,
+  ClipboardList,
+  MoreHorizontal
 } from 'lucide-react';
 
-export default function Layout({ children, viewRole, setViewRole }) {
+export default function Layout({ children, viewRole, setViewRole, professionals = [] }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showRoleDropdown, setShowRoleDropdown] = React.useState(false);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
+  const isEmployee = viewRole.startsWith('employee-');
+  const employeeId = isEmployee ? viewRole.replace('employee-', '') : null;
+  const currentProf = isEmployee ? professionals.find(p => p.id === employeeId) : null;
+
+  // Define all possible menu items
   const menuItems = [
     { name: 'Dashboard', mobileName: 'Início', path: '/', icon: LayoutDashboard },
     { name: 'Agendamentos', mobileName: 'Agenda', path: '/agendamentos', icon: Calendar },
-    { name: 'Funcionários', mobileName: 'Equipe', path: '/funcionarios', icon: Users },
-    { name: 'Estoque', mobileName: 'Estoque', path: '/estoque', icon: Package },
-    { name: 'Assinatura', mobileName: 'Planos', path: '/assinatura', icon: CreditCard },
+    { name: 'Metas', mobileName: 'Metas', path: '/metas', icon: Target },
+    { name: 'Checklist', mobileName: 'Checklist', path: '/checklist', icon: ClipboardList },
+    { name: 'Funcionários', mobileName: 'Equipe', path: '/funcionarios', icon: Users, adminOnly: true },
+    { name: 'Estoque', mobileName: 'Estoque', path: '/estoque', icon: Package, adminOnly: true },
+    { name: 'Assinatura', mobileName: 'Planos', path: '/assinatura', icon: CreditCard, adminOnly: true },
   ];
+
+  // Filter items for desktop navigation based on viewRole
+  const visibleMenuItems = menuItems.filter(item => {
+    if (item.adminOnly && isEmployee) return false;
+    return true;
+  });
+
+  // Filter items for mobile bottom nav (max 4 main tabs, others go to 'Mais' or hidden for employees)
+  const mobileMenuItems = menuItems.filter(item => {
+    if (item.adminOnly) return false; // Admins access these through 'Mais', employees don't see them
+    return true;
+  });
 
   const currentPath = location.pathname;
 
@@ -29,6 +52,7 @@ export default function Layout({ children, viewRole, setViewRole }) {
     <>
       {/* ROOT WRAPPER — sem transform/filter para não quebrar o position:fixed da bottom nav */}
       <div className="min-h-screen bg-dark-bg text-gray-100 flex flex-col md:flex-row">
+        
         {/* DESKTOP SIDEBAR */}
         <aside className="hidden md:flex flex-col w-16 hover:w-[220px] bg-card-bg border-r border-border-dark fixed h-full z-40 group sidebar-transition">
           {/* Brand/Logo */}
@@ -44,7 +68,7 @@ export default function Layout({ children, viewRole, setViewRole }) {
 
           {/* Navigation Links */}
           <nav className="flex-1 px-2 py-6 space-y-2 overflow-x-hidden">
-            {menuItems.map((item) => {
+            {visibleMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPath === item.path;
               return (
@@ -72,27 +96,51 @@ export default function Layout({ children, viewRole, setViewRole }) {
           <div className="relative">
             {showRoleDropdown && (
               <div className="absolute bottom-[70px] left-2 right-2 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
-                <p className="text-xs font-bold text-gray-500 px-3 pb-1 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
+                <p className="text-xs font-bold text-gray-500 px-3 pb-1.5 border-b border-border-dark/60 uppercase tracking-wider">Alterar Papel</p>
                 <button 
                   type="button"
                   onClick={() => {
                     setViewRole('admin');
                     setShowRoleDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+                  className={`w-full text-left px-3 py-2 text-xs font-bold hover:bg-white/5 flex items-center justify-between cursor-pointer ${
+                    viewRole === 'admin' ? 'text-gold-400' : 'text-gray-400'
+                  }`}
                 >
                   <span>Administrador</span>
-                  <span>✓</span>
+                  {viewRole === 'admin' && <span>✓</span>}
                 </button>
+                
+                {/* Professionals Selection */}
+                {professionals.map((prof) => (
+                  <button 
+                    key={prof.id}
+                    type="button"
+                    onClick={() => {
+                      setViewRole(`employee-${prof.id}`);
+                      setShowRoleDropdown(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs font-bold hover:bg-white/5 flex items-center justify-between cursor-pointer ${
+                      viewRole === `employee-${prof.id}` ? 'text-gold-400' : 'text-gray-400'
+                    }`}
+                  >
+                    <span>Barbeiro: {prof.name}</span>
+                    {viewRole === `employee-${prof.id}` && <span>✓</span>}
+                  </button>
+                ))}
+
                 <button 
                   type="button"
                   onClick={() => {
                     setViewRole('client');
                     setShowRoleDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                  className={`w-full text-left px-3 py-2 text-xs font-bold hover:bg-white/5 flex items-center justify-between border-t border-border-dark/40 cursor-pointer ${
+                    viewRole === 'client' ? 'text-gold-400' : 'text-gray-400'
+                  }`}
                 >
                   <span>Cliente (Simulador)</span>
+                  {viewRole === 'client' && <span>✓</span>}
                 </button>
               </div>
             )}
@@ -104,8 +152,12 @@ export default function Layout({ children, viewRole, setViewRole }) {
                 <User className="w-5 h-5" />
               </div>
               <div className="overflow-hidden whitespace-nowrap sidebar-label shrink-0">
-                <p className="text-xs font-semibold text-white leading-tight">Administrador</p>
-                <p className="text-xs text-gray-500">Unidade Jardins</p>
+                <p className="text-xs font-semibold text-white leading-tight truncate">
+                  {viewRole === 'admin' ? 'Administrador' : currentProf ? currentProf.name : 'Funcionário'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {viewRole === 'admin' ? 'Painel Admin' : 'Barbeiro Corleone'}
+                </p>
               </div>
             </div>
           </div>
@@ -125,6 +177,55 @@ export default function Layout({ children, viewRole, setViewRole }) {
         className="md:hidden fixed bottom-0 left-0 right-0 w-full bg-card-bg/95 backdrop-blur-md border-t border-border-dark z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
+        {/* More admin pages modal popover */}
+        {showMoreMenu && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
+            <div className="absolute bottom-full mb-2 right-12 w-48 bg-card-bg border border-border-dark rounded-xl py-1.5 shadow-2xl z-50 animate-modal-in select-none">
+              <p className="text-[10px] font-bold text-gray-500 px-3.5 pb-2 pt-1 border-b border-border-dark/60 uppercase tracking-wider">Mais Opções</p>
+              <button 
+                type="button"
+                onClick={() => {
+                  navigate('/funcionarios');
+                  setShowMoreMenu(false);
+                }}
+                className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 flex items-center gap-2.5 cursor-pointer ${
+                  currentPath === '/funcionarios' ? 'text-gold-400' : 'text-gray-300'
+                }`}
+              >
+                <Users className="w-4 h-4 text-gold-400" />
+                <span>Funcionários</span>
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  navigate('/estoque');
+                  setShowMoreMenu(false);
+                }}
+                className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 flex items-center gap-2.5 cursor-pointer ${
+                  currentPath === '/estoque' ? 'text-gold-400' : 'text-gray-300'
+                }`}
+              >
+                <Package className="w-4 h-4 text-gold-400" />
+                <span>Estoque</span>
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  navigate('/assinatura');
+                  setShowMoreMenu(false);
+                }}
+                className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 flex items-center gap-2.5 cursor-pointer ${
+                  currentPath === '/assinatura' ? 'text-gold-400' : 'text-gray-300'
+                }`}
+              >
+                <CreditCard className="w-4 h-4 text-gold-400" />
+                <span>Assinatura</span>
+              </button>
+            </div>
+          </>
+        )}
+
         {showRoleDropdown && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setShowRoleDropdown(false)} />
@@ -136,26 +237,49 @@ export default function Layout({ children, viewRole, setViewRole }) {
                   setViewRole('admin');
                   setShowRoleDropdown(false);
                 }}
-                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gold-400 hover:bg-white/5 flex items-center justify-between cursor-pointer"
+                className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 flex items-center justify-between cursor-pointer ${
+                  viewRole === 'admin' ? 'text-gold-400' : 'text-gray-400'
+                }`}
               >
                 <span>Administrador</span>
-                <span>✓</span>
+                {viewRole === 'admin' && <span>✓</span>}
               </button>
+              
+              {professionals.map((prof) => (
+                <button 
+                  key={prof.id}
+                  type="button"
+                  onClick={() => {
+                    setViewRole(`employee-${prof.id}`);
+                    setShowRoleDropdown(false);
+                  }}
+                  className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 flex items-center justify-between cursor-pointer ${
+                    viewRole === `employee-${prof.id}` ? 'text-gold-400' : 'text-gray-400'
+                  }`}
+                >
+                  <span>Barbeiro: {prof.name}</span>
+                  {viewRole === `employee-${prof.id}` && <span>✓</span>}
+                </button>
+              ))}
+
               <button 
                 type="button"
                 onClick={() => {
                   setViewRole('client');
                   setShowRoleDropdown(false);
                 }}
-                className="w-full text-left px-3.5 py-3 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                className={`w-full text-left px-3.5 py-3 text-xs font-bold hover:bg-white/5 hover:text-white flex items-center justify-between border-t border-border-dark/40 cursor-pointer ${
+                  viewRole === 'client' ? 'text-gold-400' : 'text-gray-400'
+                }`}
               >
                 <span>Cliente (Simulador)</span>
+                {viewRole === 'client' && <span>✓</span>}
               </button>
             </div>
           </>
         )}
         <div className="flex justify-around items-center px-2 py-2">
-          {menuItems.map((item) => {
+          {mobileMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPath === item.path;
             return (
@@ -172,6 +296,19 @@ export default function Layout({ children, viewRole, setViewRole }) {
             );
           })}
           
+          {/* Admin "Mais" tab on mobile */}
+          {!isEmployee && (
+            <button
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 h-12 rounded-lg transition-all duration-200 active:scale-95 ${
+                showMoreMenu || ['/funcionarios', '/estoque', '/assinatura'].includes(currentPath) ? 'text-gold-400 font-bold' : 'text-gray-400 font-medium'
+              }`}
+            >
+              <MoreHorizontal className={`w-4.5 h-4.5 ${showMoreMenu ? 'scale-110 text-gold-400' : ''}`} />
+              <span className="text-[9px] sm:text-[10px] tracking-wide text-center">Mais</span>
+            </button>
+          )}
+
           {/* Perfil/Role Switcher Mobile Tab */}
           <button
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
@@ -187,3 +324,4 @@ export default function Layout({ children, viewRole, setViewRole }) {
     </>
   );
 }
+
